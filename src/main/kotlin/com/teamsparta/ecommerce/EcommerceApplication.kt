@@ -3,7 +3,7 @@ package com.teamsparta.ecommerce
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
-// test
+// test2
 @SpringBootApplication
 class EcommerceApplication
 
