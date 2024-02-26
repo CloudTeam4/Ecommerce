@@ -1,4 +1,4 @@
-package com.teamsparta.ecommerce.web.response
+package com.teamsparta.ecommerce.util.web.response
 
 import lombok.Getter
 import lombok.Setter
