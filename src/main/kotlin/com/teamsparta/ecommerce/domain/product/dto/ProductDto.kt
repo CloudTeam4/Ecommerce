@@ -1,6 +1,7 @@
 package com.teamsparta.ecommerce.domain.product.dto
 
 import com.teamsparta.ecommerce.domain.product.model.Product
+import com.teamsparta.ecommerce.util.enums.Category
 
 data class ProductDto(
 
