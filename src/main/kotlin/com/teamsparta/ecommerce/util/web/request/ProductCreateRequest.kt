@@ -1,8 +1,8 @@
-package com.teamsparta.ecommerce.web.request
+package com.teamsparta.ecommerce.util.web.request
 
 import jakarta.validation.constraints.NotBlank
 
-data class ProductUpdateRequest(
+data class ProductCreateRequest(
     var category: Category,
 
     @field:NotBlank
