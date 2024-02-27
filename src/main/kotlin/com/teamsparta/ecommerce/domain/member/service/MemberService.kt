@@ -34,7 +34,7 @@ class MemberService(
         val encodedPassword = passwordEncoder.encode(memberSignUpDto.password)
 
         if (memberRepository.existsByEmail(email)) {
-            throw ConflictException("Already used id")
+            throw ConflictException("Already used email")
         }
 
         checkRoleAndSaveMember(memberSignUpDto, encodedPassword)
@@ -48,15 +48,15 @@ class MemberService(
         val password = memberLoginDto.password
 
         if (!memberRepository.existsByEmail(email)) {
-            throw ForbiddenException("Id or password is wrong. Try again")
+            throw ForbiddenException("Email or password is wrong. Try again")
         }
 
         val requestMember = memberRepository.findByEmail(email).orElseThrow {
-            throw ForbiddenException("Id or password is wrong. Try again")
+            throw ForbiddenException("Email or password is wrong. Try again")
         }
 
         if (!passwordEncoder.matches(password, requestMember.password)) {
-            throw ForbiddenException("Id or password is wrong. Try again")
+            throw ForbiddenException("Email or password is wrong. Try again")
         }
 
         val generalToken = jwtUtil.generateGeneralToken(requestMember.id!!, email, requestMember.role)

@@ -64,7 +64,7 @@ class JwtUtil(
         }
     }
 
-    fun getUsernameFromToken(token: String): String? {
+    fun getEmailFromToken(token: String): String? {
         return try {
             val claims = Jwts.parserBuilder()
                 .setSigningKey(signingKey)
@@ -72,7 +72,7 @@ class JwtUtil(
                 .parseClaimsJws(token)
                 .body
 
-            claims["username", String::class.java]
+            claims["email", String::class.java]
         } catch (e: Exception) {
             return null
         }
