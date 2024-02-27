@@ -61,9 +61,14 @@ class OrderController(
     }
 
     @GetMapping("/{memberId}")
-    fun findOrderList(@PathVariable memberId: Long): ResponseEntity<CallOrderListDto> {
+    fun findOrderList(@PathVariable memberId: Long): ResponseEntity<List<CallOrderListDto>> {
         val callOrderListDto = orderService.findOrderList(memberId)
         return ResponseEntity.ok(callOrderListDto)
+    }
+
+    @GetMapping("/orders/excluding-cancel-refund/{memberId}")
+    fun findOrdersExcludingCancelAndRefund(@PathVariable memberId: Long): List<CallOrderListDto> {
+        return orderService.findOrdercancelandrefundList(memberId)
     }
 
     @GetMapping("/{orderId}/details")

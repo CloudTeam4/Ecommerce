@@ -113,11 +113,18 @@ class OrderService(
     fun findOrderList(memberId:Long): CallOrderListDto{
         val order = orderRepository.findById((memberId)).orElseThrow()
 
-        return CallOrderListDto(
-            orderdate = order.orderdate,
-            arrivaldate = order.arrivaldate,
-            paymentmethod = order.paymentmethod,
-            totalprice = order.totalprice
-        )
+    @Transactional
+    fun findOrdercancelandrefundList(memberId: Long): List<CallOrderListDto> {
+        val statuses = listOf(Status.ORDERCANCEL, Status.ORDERREFUND)
+        val orders = orderRepository.findByMemberIdAndStatusIn(memberId, statuses)
+        return orders.map { order ->
+            CallOrderListDto(
+                orderdate = order.orderdate,
+                arrivaldate = order.arrivaldate,
+                paymentmethod = order.paymentmethod,
+                totalprice = order.totalprice
+            )
+        }
     }
+
 }
