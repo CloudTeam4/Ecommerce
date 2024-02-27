@@ -70,7 +70,7 @@ class OrderService(
         val hoursDifference = duration.toHours()
 
         if (hoursDifference <= 168) { // 168시간(7일) 이내
-            // 환불 로직 실행
+            order.status = Status.ORDERREFUND
         } else {
             throw IllegalStateException("7일 이내에만 반품 할 수 있습니다.")
         }
