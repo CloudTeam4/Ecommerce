@@ -1,11 +1,10 @@
 package com.teamsparta.ecommerce.domain.order.model
 
-import com.teamsparta.ecommerce.domain.order.enum.PaymentMethod
-import com.teamsparta.ecommerce.domain.order.enum.Status
+import com.teamsparta.ecommerce.domain.member.model.Member
+import com.teamsparta.ecommerce.util.enum.PaymentMethod
+import com.teamsparta.ecommerce.util.enum.Status
 import jakarta.persistence.*
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 
 
 @Entity
@@ -17,7 +16,7 @@ class Order (
     var paymentmethod : PaymentMethod,
 
     @Column(name = "TOTAL_PRICE")
-    var totalprice : Int,
+    var totalprice : Int ? = null,
 
 
 
@@ -36,7 +35,10 @@ class Order (
     var arrivaldate : LocalDateTime?=null,
 
     @ManyToOne
-    @JoinColumn(name = "USER_ID")
-    var user: User = null,
+    @JoinColumn(name = "MEMBER_ID")
+    var member: Member,
+
+    @OneToMany(mappedBy = "order", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var orderDetails: MutableList<OrderDetail> = mutableListOf()
     ){
 }

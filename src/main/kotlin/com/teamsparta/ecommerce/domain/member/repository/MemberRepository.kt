@@ -11,4 +11,5 @@ interface MemberRepository : JpaRepository<Member, Long> {
     fun findByEmail (email: String) : Optional<Member>
 
 
+
 }
