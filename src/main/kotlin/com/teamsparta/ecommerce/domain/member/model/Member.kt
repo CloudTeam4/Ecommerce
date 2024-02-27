@@ -30,6 +30,6 @@ data class Member(
 ){
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: UUID? = null
+    val id: Long? = null
 
 }
