@@ -2,11 +2,9 @@ package com.teamsparta.ecommerce.domain.member.model
 
 import com.teamsparta.ecommerce.util.enum.Role
 import jakarta.persistence.*
-import org.hibernate.annotations.GenericGenerator
-import java.util.*
+
 
 @Entity
-@Table(name = "member")
 data class Member(
 
     @Column(nullable = false)
