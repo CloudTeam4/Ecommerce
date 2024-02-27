@@ -1,0 +1,5 @@
+package com.teamsparta.ecommerce.domain.order.enum
+
+enum class Status {
+    PAYMENTCOMPLETED,PRIPAIRINGPRODUCT,DELIVERYSTARTED,ONDELIVERY,DELIVERYCOMPLETED,ORDERCANCEL
+}
