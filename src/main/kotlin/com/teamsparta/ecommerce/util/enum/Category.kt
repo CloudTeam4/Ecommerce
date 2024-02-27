@@ -1,4 +1,4 @@
-package com.teamsparta.ecommerce.util.enums
+package com.teamsparta.ecommerce.util.enum
 
 enum class Category {
     HOME_APPLIANCES, //가전
