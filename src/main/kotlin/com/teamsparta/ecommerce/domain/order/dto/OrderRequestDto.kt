@@ -4,5 +4,7 @@ import com.teamsparta.ecommerce.domain.order.enum.PaymentMethod
 
 data class OrderRequestDto(
     var paymentmethod : PaymentMethod,
-    var totalprice :Int
+    var totalprice :Int,
+    var items: List<OrderItemRequestDto>
 )
+

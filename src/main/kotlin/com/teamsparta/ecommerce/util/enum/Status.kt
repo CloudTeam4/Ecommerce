@@ -1,4 +1,4 @@
-package com.teamsparta.ecommerce.domain.order.enum
+package com.teamsparta.ecommerce.util.enum
 
 enum class Status {
     PAYMENTCOMPLETED,PRIPAIRINGPRODUCT,DELIVERYSTARTED,ONDELIVERY,DELIVERYCOMPLETED,ORDERCANCEL

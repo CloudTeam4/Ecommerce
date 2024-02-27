@@ -1,5 +1,6 @@
 package com.teamsparta.ecommerce.domain.order.model
 
+import com.teamsparta.ecommerce.domain.product.model.Product
 import jakarta.persistence.*
 
 @Entity
@@ -11,13 +12,14 @@ class OrderDetail (
 
     @Column(name = "QUANTITY")
     var quantity: Int,
+
     @ManyToOne
     @JoinColumn(name = "ORDER_ID")
     var order: Order? = null,
 
     @ManyToOne
     @JoinColumn(name = "ITEM_ID")
-    var item: Item? = null,
+    var product: Product? = null,
 
 ){
 

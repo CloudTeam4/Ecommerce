@@ -7,5 +7,5 @@ import java.time.LocalDateTime
 data class OrderResponseDto(
     var orderdate:LocalDateTime,
     var paymentmethod : PaymentMethod,
-    var totalprice :Int
+    var totalprice :Int?
 )
