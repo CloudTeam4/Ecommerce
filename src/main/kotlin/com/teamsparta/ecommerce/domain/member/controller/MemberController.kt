@@ -20,18 +20,17 @@ class MemberController(private val memberService: MemberService) {
     @RequestMapping("/signup")
     fun memberSignup(@Valid @RequestBody memberSignUpDto: MemberSignUpDto)
             : ResponseEntity<SingleResponse<String>> {
-
-
+        memberService.memberRegistration(memberSignUpDto)
         return ResponseEntity(SingleResponse.success(), HttpStatus.OK)
 
     }
 
     @PostMapping
     @RequestMapping("/login")
-    fun memberLogin(@RequestBody memberLoginRequestDto: MemberLoginDto)
+    fun memberLogin(@RequestBody memberLoginDto: MemberLoginDto)
             : ResponseEntity<SingleResponse<String>> {
 
-
+        memberService.memberLogin(memberLoginDto)
         return ResponseEntity(SingleResponse.success(), HttpStatus.OK)
     }
 }

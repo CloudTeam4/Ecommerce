@@ -12,7 +12,7 @@ class UserDetailsServiceImpl(private val memberRepository: MemberRepository) : U
     override fun loadUserByUsername(memberId: String?): UserDetails {
         val member = memberRepository
             .findById(
-                UUID.fromString(memberId) ?:throw NotFoundException("There is no Member that is related to the memberName"))
+                memberId?.toLong() ?:throw NotFoundException("There is no Member that is related to the memberName"))
             .orElseThrow { throw NotFoundException("There is no Member that is related to the memberName") }
 
         return UserDetailsImpl(member)

@@ -4,7 +4,6 @@ import com.teamsparta.ecommerce.domain.member.model.Member
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import java.security.Principal
-import java.util.UUID
 import javax.security.auth.Subject
 
 class UserDetailsImpl(private val member : Member) : UserDetails, Principal {
@@ -12,7 +11,7 @@ class UserDetailsImpl(private val member : Member) : UserDetails, Principal {
     fun getMember() : Member{
         return member
     }
-    fun getMemberId() : UUID{
+    fun getMemberId() : Long{
         return member.id!!
     }
 
