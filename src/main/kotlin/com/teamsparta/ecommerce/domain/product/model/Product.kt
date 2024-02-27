@@ -1,5 +1,6 @@
 package com.teamsparta.ecommerce.domain.product.model
 
+import com.teamsparta.ecommerce.util.enum.Category
 import jakarta.persistence.*
 
 @Entity
