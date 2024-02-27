@@ -8,13 +8,13 @@ import com.teamsparta.ecommerce.domain.order.service.OrderDetailService
 import com.teamsparta.ecommerce.domain.order.service.OrderService
 import org.springframework.web.bind.annotation.*
 import org.springframework.http.ResponseEntity
-import org.springframework.beans.factory.annotation.Autowired
+
 
 @RestController
 @RequestMapping("/orders")
 class OrderController(
-    @Autowired private val orderService: OrderService,
-    @Autowired private val orderDetailService: OrderDetailService) {
+     private val orderService: OrderService,
+     private val orderDetailService: OrderDetailService) {
 
     @PostMapping
     fun createOrder(@RequestBody orderRequestDto: OrderRequestDto,

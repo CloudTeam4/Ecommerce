@@ -1,13 +1,10 @@
 package com.teamsparta.ecommerce.domain.order.model
 
 import com.teamsparta.ecommerce.domain.member.model.Member
-import com.teamsparta.ecommerce.domain.order.enum.PaymentMethod
-import com.teamsparta.ecommerce.domain.order.enum.Status
+import com.teamsparta.ecommerce.util.enum.PaymentMethod
+import com.teamsparta.ecommerce.util.enum.Status
 import jakarta.persistence.*
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
-import java.util.Optional
 
 
 @Entity
