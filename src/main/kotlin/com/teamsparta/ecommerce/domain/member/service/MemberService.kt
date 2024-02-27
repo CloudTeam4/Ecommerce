@@ -1,5 +1,7 @@
 package com.teamsparta.ecommerce.domain.member.service
 
+import com.teamsparta.ecommerce.domain.cart.model.Cart
+import com.teamsparta.ecommerce.domain.cart.repository.CartRepository
 import com.teamsparta.ecommerce.domain.member.dto.MemberLoginDto
 import com.teamsparta.ecommerce.domain.member.dto.MemberSignUpDto
 import com.teamsparta.ecommerce.domain.member.model.Member
@@ -8,10 +10,10 @@ import com.teamsparta.ecommerce.exception.*
 import com.teamsparta.ecommerce.util.enum.Role
 import com.teamsparta.ecommerce.util.jwt.JwtUtil
 import jakarta.servlet.http.HttpServletResponse
-import jakarta.transaction.Transactional
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class MemberService(
@@ -19,6 +21,7 @@ class MemberService(
     private val passwordEncoder: BCryptPasswordEncoder,
     private val jwtUtil: JwtUtil,
     private val response: HttpServletResponse,
+    private val cartRepository: CartRepository,
     @Value("\${secretAdminCode}")
     private val secretCode: String
 
@@ -66,7 +69,7 @@ class MemberService(
 
     private fun checkRoleAndSaveMember(memberSignUpDto: MemberSignUpDto, encodedPassword: String) {
         if (memberSignUpDto.role == "CUSTOMER") {
-            memberRepository.save(
+            val member = memberRepository.save(
                 Member(
                     email = memberSignUpDto.email,
                     password = encodedPassword,
@@ -75,6 +78,9 @@ class MemberService(
                     nickname = memberSignUpDto.nickname,
                     role = Role.CUSTOMER
                 )
+            )
+            cartRepository.save(
+                Cart(member = member)
             )
         } else if (memberSignUpDto.role == "SELLER") {
             memberRepository.save(
