@@ -1,5 +1,5 @@
 package com.teamsparta.ecommerce.util.enum
 
 enum class Role {
-    ADMIN, CUSTOMER, SELLER,
+    ADMIN, CUSTOMER,PREMIUM, SELLER,
 }
