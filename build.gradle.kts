@@ -49,6 +49,9 @@ dependencies {
 
     // valid
     implementation("org.springframework.boot:spring-boot-starter-validation")
+
+    // Redis
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
 }
 
 tasks.withType<KotlinCompile> {
