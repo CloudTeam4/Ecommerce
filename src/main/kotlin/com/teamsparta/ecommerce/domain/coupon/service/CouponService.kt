@@ -61,7 +61,7 @@ class CouponService(
 
         // 카운터가 정해진 수량을 초과하면 쿠폰 발급 거부
         if (couponNum > 100) {
-            throw BadRequestException("죄송합니다, 쿠폰이 모두 소진되었습니다.", ErrorCode.BAD_REQUEST)
+            throw BadRequestException("죄송합니다, 쿠폰이 모두 소진되었습니다!!!", ErrorCode.BAD_REQUEST)
         }
 
         // Redis 카운터 증가
