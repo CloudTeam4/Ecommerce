@@ -7,11 +7,9 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.serializer.StringRedisSerializer
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.data.redis.repository.configuration.EnableRedisRepositories
 
 
 @Configuration
-@EnableRedisRepositories // RedisRepository 활용하기 위한 설, RedisRepository를 활용하면 Spring Data JPA처럼 객체를 기반으로 Redis에 객체를 저장하고 조회 가능.
 class RedisConfig {
     @Value("\${spring.data.redis.host}")
     private val host: String? = null
