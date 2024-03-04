@@ -1,10 +1,8 @@
 package com.teamsparta.ecommerce.util.web.request
 
-import com.teamsparta.ecommerce.util.enum.Category
 import jakarta.validation.constraints.NotBlank
 
-data class ProductCreateRequest(
-    var category: Category,
+data class CouponCreateRequest(
 
     @field:NotBlank
     var name: String,
@@ -12,6 +10,12 @@ data class ProductCreateRequest(
     @field:NotBlank
     var explanation: String,
 
-    var price: Int,
+    var deductedPrice: Int,
+
+    var status: String,
+
+    var type: Boolean, // 중복 사용 가능 여부
+
+    var applicable: String, // 적용 가능 대상
 ) {
 }
