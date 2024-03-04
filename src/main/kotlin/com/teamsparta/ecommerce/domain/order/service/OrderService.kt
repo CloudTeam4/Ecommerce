@@ -9,6 +9,7 @@ import com.teamsparta.ecommerce.domain.order.model.OrderDetail
 import com.teamsparta.ecommerce.domain.order.repository.OrderRepository
 import com.teamsparta.ecommerce.domain.product.repository.ProductRepository
 import com.teamsparta.ecommerce.util.enum.Status
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
@@ -47,44 +48,46 @@ class OrderService(
     }
 
     @Transactional
-    //Customer 본인확인
     fun deleteOrder(orderId: Long) {
+        val authentication = SecurityContextHolder.getContext().authentication
+        val memberEmail = authentication.name
         val order = orderRepository.findById(orderId).orElseThrow()
-        if ((order.status == Status.ORDERCANCEL) || (order.status == Status.DELIVERYCOMPLETED))
+        if ((order.member.email == memberEmail)&&((order.status == Status.ORDERCANCEL) || (order.status == Status.DELIVERYCOMPLETED)))
             orderRepository.deleteById(orderId)
     }
 
     @Transactional
-    //Customer
     fun cancelOrder(orderId: Long) {
+        val authentication = SecurityContextHolder.getContext().authentication
+        val memberEmail = authentication.name
         val order = orderRepository.findById(orderId).orElseThrow()
-        if (order.status == Status.PAYMENTCOMPLETED||order.status == Status.PRIPAIRINGPRODUCT)
+        if ((order.member.email == memberEmail)&&(order.status == Status.PAYMENTCOMPLETED||order.status == Status.PRIPAIRINGPRODUCT))
             order.status = Status.ORDERCANCEL
     }
     @Transactional
-    //Customer 본인확인
     fun refundOrder(orderId: Long) {
+        val authentication = SecurityContextHolder.getContext().authentication
+        val memberEmail = authentication.name
         val order = orderRepository.findById(orderId).orElseThrow()
         val now = LocalDateTime.now()
         val duration = Duration.between(order.orderdate, now)
         val hoursDifference = duration.toHours()
-
-        if (hoursDifference <= 168) { // 168시간(7일) 이내
-            // 환불 로직 실행
-        } else {
-            throw IllegalStateException("7일 이내에만 반품 할 수 있습니다.")
+        if(order.member.email == memberEmail){
+            if (hoursDifference <= 168) { // 168시간(7일) 이내
+                order.status = Status.ORDERREFUND
+            } else {
+                throw IllegalStateException("7일 이내에만 반품 할 수 있습니다.")
+            }
         }
     }
 
     @Transactional
-    //seller?
     fun orderPreparingProduct(orderId: Long) {
         val order = orderRepository.findById(orderId).orElseThrow()
         if (order.status == Status.PAYMENTCOMPLETED)
             order.status = Status.PRIPAIRINGPRODUCT
     }
     @Transactional
-    //Admin?
     fun orderDeliveryStart(orderId: Long) {
         val order = orderRepository.findById(orderId).orElseThrow()
         if (order.status == Status.PRIPAIRINGPRODUCT)
@@ -92,7 +95,6 @@ class OrderService(
     }
 
     @Transactional
-    //Admin?
     fun orderOnDelivery(orderId: Long) {
         val order = orderRepository.findById(orderId).orElseThrow()
         if (order.status == Status.DELIVERYSTARTED)
@@ -100,7 +102,6 @@ class OrderService(
     }
 
     @Transactional
-    //Admin?
     fun orderDeliveryCompleted(orderId: Long) {
         val order = orderRepository.findById(orderId).orElseThrow()
         if (order.status == Status.ONDELIVERY)
@@ -109,15 +110,31 @@ class OrderService(
     }
 
     @Transactional
-    //Customer  본인확인
-    fun findOrderList(memberId:Long): CallOrderListDto{
-        val order = orderRepository.findById((memberId)).orElseThrow()
-
-        return CallOrderListDto(
-            orderdate = order.orderdate,
-            arrivaldate = order.arrivaldate,
-            paymentmethod = order.paymentmethod,
-            totalprice = order.totalprice
-        )
+    fun findOrderList(memberId: Long): List<CallOrderListDto> {
+        val excludedStatuses = listOf(Status.ORDERCANCEL, Status.ORDERREFUND)
+        val orders = orderRepository.findByMemberIdAndStatusNotIn(memberId, excludedStatuses)
+        return orders.map { order ->
+            CallOrderListDto(
+                orderdate = order.orderdate,
+                arrivaldate = order.arrivaldate,
+                paymentmethod = order.paymentmethod,
+                totalprice = order.totalprice
+            )
+        }
     }
+
+    @Transactional
+    fun findOrdercancelandrefundList(memberId: Long): List<CallOrderListDto> {
+        val statuses = listOf(Status.ORDERCANCEL, Status.ORDERREFUND)
+        val orders = orderRepository.findByMemberIdAndStatusIn(memberId, statuses)
+        return orders.map { order ->
+            CallOrderListDto(
+                orderdate = order.orderdate,
+                arrivaldate = order.arrivaldate,
+                paymentmethod = order.paymentmethod,
+                totalprice = order.totalprice
+            )
+        }
+    }
+
 }

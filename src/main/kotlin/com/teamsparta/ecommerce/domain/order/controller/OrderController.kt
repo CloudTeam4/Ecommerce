@@ -6,8 +6,10 @@ import com.teamsparta.ecommerce.domain.order.dto.OrderRequestDto
 import com.teamsparta.ecommerce.domain.order.dto.OrderResponseDto
 import com.teamsparta.ecommerce.domain.order.service.OrderDetailService
 import com.teamsparta.ecommerce.domain.order.service.OrderService
+import com.teamsparta.ecommerce.security.userdetails.UserDetailsImpl
 import org.springframework.web.bind.annotation.*
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 
 
 @RestController
@@ -60,10 +62,17 @@ class OrderController(
         return ResponseEntity.ok().build()
     }
 
-    @GetMapping("/{memberId}")
-    fun findOrderList(@PathVariable memberId: Long): ResponseEntity<CallOrderListDto> {
-        val callOrderListDto = orderService.findOrderList(memberId)
+    @GetMapping("/List")
+    fun findOrderList( @AuthenticationPrincipal member: UserDetailsImpl): ResponseEntity<List<CallOrderListDto>> {
+        val callOrderListDto = orderService.findOrderList(member.getMemberId())
         return ResponseEntity.ok(callOrderListDto)
+    }
+
+    @GetMapping("/cancel-return-exchange/list")
+    fun findOrdersExcludingCancelAndRefund(
+        @AuthenticationPrincipal member: UserDetailsImpl
+    ): List<CallOrderListDto> {
+        return orderService.findOrdercancelandrefundList(member.getMemberId())
     }
 
     @GetMapping("/{orderId}/details")
