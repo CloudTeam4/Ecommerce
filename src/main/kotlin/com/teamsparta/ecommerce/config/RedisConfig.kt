@@ -1,5 +1,8 @@
 package com.teamsparta.ecommerce.config
 
+import org.redisson.Redisson
+import org.redisson.api.RedissonClient
+import org.redisson.config.Config
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.redis.connection.RedisConnectionFactory
@@ -16,6 +19,15 @@ class RedisConfig {
 
     @Value("\${spring.data.redis.port}")
     private val port = 0
+
+    @Bean(destroyMethod = "shutdown")
+    fun redissonClient() : RedissonClient {
+        val config = Config()
+        config.useSingleServer() // Redis 클라이언트가 단일 Redis 서버에 연결하도록 구성
+            .setAddress("redis://$host:$port") // 연결할 Redis 서버의 주소를 설정
+            .setDnsMonitoringInterval(-1) //DNS 모니터링 간격 설정, 여기서는 DNS 모니터링을 사용하지 않도록 -1로 설정
+        return Redisson.create(config)
+    }
 
     @Bean
     fun redisConnectionFactory(): RedisConnectionFactory {
