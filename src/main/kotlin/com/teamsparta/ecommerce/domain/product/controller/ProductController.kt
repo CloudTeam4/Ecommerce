@@ -14,6 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.User
 import org.springframework.web.bind.annotation.*
 import jakarta.validation.Valid
+import org.springframework.web.multipart.MultipartFile as MultipartFile1
 
 @RestController
 class ProductController(
@@ -25,10 +26,11 @@ class ProductController(
     fun createMenu(
         @AuthenticationPrincipal user: User,
         @PathVariable itemId: Long,
-        @Valid @RequestBody request: ProductCreateRequest
+        @Valid @RequestPart("request") request: ProductCreateRequest,
+        @RequestPart("image") image: MultipartFile1 // 이미지 파일을 받는 부분
     ): ResponseEntity<SingleResponse<ProductDto>> {
         try {
-            val item = productService.addItem(user.username.toLong(), request, itemId)
+            val item = productService.addItem(user.username.toLong(), request, itemId,image)
             return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(SingleResponse.successOf("메뉴 등록에 성공했습니다!", ProductDto.fromEntity(item)))

@@ -38,6 +38,9 @@ dependencies {
     compileOnly("org.projectlombok:lombok")
 
     implementation ("org.springframework.boot:spring-boot-starter-security")
+    implementation ("software.amazon.awssdk:s3:2.17.100")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
+
 
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")

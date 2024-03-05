@@ -17,7 +17,10 @@ class Product(
     var explanation: String,
 
     @Column(name = "price")
-    var price: Int
+    var price: Int,
+
+    @Column(name = "image")
+    var imageUrl: String
 
 ) {
 
