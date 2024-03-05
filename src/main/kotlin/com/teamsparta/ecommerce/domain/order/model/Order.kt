@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 
 
 @Entity
-@Table(name = "ORDER")
+@Table(name = "orders")
 class Order (
 
     @Enumerated(EnumType.STRING)

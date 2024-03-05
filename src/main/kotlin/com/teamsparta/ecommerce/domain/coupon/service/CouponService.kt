@@ -55,6 +55,8 @@ class CouponService(
         val member = memberRepository.findById(memberId).orElseThrow { NotFoundException("회원 정보를 찾을 수 없습니다.") }
         val coupon = couponRepository.findById(couponId).orElseThrow { NotFoundException("쿠폰 정보를 찾을 수 없습니다.") }
 
+        // 1. Lock
+
         // 발급 전에 redis의 카운터 확인
         val couponNum = couponCountRepository.getCount()
         logger.info("현재 쿠폰 수량 : {}", couponNum)
@@ -68,6 +70,7 @@ class CouponService(
         val count = couponCountRepository.increment()
 
         // 카운터가 정해진 수량을 초과하지 않으면 쿠폰 발급, 쿠폰함에 쿠폰 저장
+        // 2. return couponBoxRepository.save(CouponBox(member = member, coupon = coupon)) -> redis에 저장시키는 것으로 변경
         return couponBoxRepository.save(CouponBox(member = member, coupon = coupon))
     }
 }
