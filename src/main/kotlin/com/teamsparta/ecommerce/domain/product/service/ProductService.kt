@@ -10,28 +10,46 @@ import com.teamsparta.ecommerce.util.enum.Role
 import com.teamsparta.ecommerce.util.web.request.ProductCreateRequest
 import com.teamsparta.ecommerce.util.web.request.ProductUpdateRequest
 import jakarta.transaction.Transactional
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import org.springframework.web.multipart.MultipartFile
+import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.model.PutObjectRequest
+import software.amazon.awssdk.core.sync.RequestBody
+
 
 @Service
 class ProductService(
     private val productRepository: ProductRepository,
-    private val memberRepository: MemberRepository
+    private val memberRepository: MemberRepository,
+    private val s3Client: S3Client,
 ) {
+
+    @Value("\${cloud.aws.s3.bucket-name}")
+    private lateinit var bucketName: String
 
     /**
      * 상품 등록
      * */
     @Transactional
-    fun addItem(memberId: Long, request: ProductCreateRequest, itemId: Long): Product {
+    fun addItem(memberId: Long, request: ProductCreateRequest, itemId: Long,image: MultipartFile): Product {
         val member = memberRepository.findById(memberId).orElseThrow { NotFoundException("판매자 정보를 찾을 수 없습니다.") }
         if(member.role != Role.SELLER) {
             throw BadRequestException("판매자만 상품을 등록할 수 있습니다.")
         }
+        val imageKey = "product-images/${image.originalFilename}"
+        s3Client.putObject(PutObjectRequest.builder()
+            .bucket(bucketName)
+            .key(imageKey)
+            .build(), RequestBody.fromInputStream(image.inputStream, image.size))
+
+        val imageUrl = s3Client.utilities().getUrl { it.bucket(bucketName).key(imageKey) }.toExternalForm()
         val product = Product(
             category = request.category,
             name = request.name,
             explanation = request.explanation,
             price = request.price,
+            imageUrl = imageUrl
         )
         return productRepository.save(product)
     }
