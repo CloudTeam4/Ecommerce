@@ -1,5 +1,6 @@
 package com.teamsparta.ecommerce.util.web.request
 
+import com.teamsparta.ecommerce.util.enum.Category
 import jakarta.validation.constraints.NotBlank
 
 data class ProductUpdateRequest(
