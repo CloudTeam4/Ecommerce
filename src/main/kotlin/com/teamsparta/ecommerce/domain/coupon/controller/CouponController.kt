@@ -5,6 +5,7 @@ import com.teamsparta.ecommerce.domain.coupon.model.Coupon
 import com.teamsparta.ecommerce.domain.coupon.service.CouponService
 import com.teamsparta.ecommerce.exception.BadRequestException
 import com.teamsparta.ecommerce.exception.ErrorCode
+import com.teamsparta.ecommerce.security.userdetails.UserDetailsImpl
 import com.teamsparta.ecommerce.util.web.request.CouponCreateRequest
 import com.teamsparta.ecommerce.util.web.response.SingleResponse
 import jakarta.validation.Valid
@@ -27,11 +28,11 @@ class CouponController(
      * */
     @PostMapping("/api/coupons")
     fun createCoupon(
-        @AuthenticationPrincipal user: User,
+        @AuthenticationPrincipal user : UserDetailsImpl,
         @Valid @RequestBody request: CouponCreateRequest
     ) : ResponseEntity<SingleResponse<CouponDto>> {
         try {
-            val coupon = couponService.addCoupon(user.username.toLong(), request)
+            val coupon = couponService.addCoupon(user.getMemberId(), request)
             return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(SingleResponse.successOf("쿠폰 등록에 성공했습니다!", CouponDto.fromEntity(coupon)))

@@ -22,9 +22,16 @@ class SecurityConfig(private val jwtUtil: JwtUtil) {
             .csrf { it.disable() }
             .authorizeHttpRequests {
                 it.requestMatchers("/api/members/**", "/swagger-ui/**", "/v3/api-docs/**", "/h2-console/**").permitAll()
-                    .requestMatchers("/{orderId}/delivery/start","/{orderId}/delivery/update","/{orderId}/delivery/complete").hasRole("ADMIN")
-                    .requestMatchers("/{orderId}/prepare").hasRole("SELLER")
-                    .requestMatchers("/orders/**").hasRole("CUSTOMER")
+                    .requestMatchers(
+                        "/orders/{orderId}/delivery/start",
+                        "/orders/{orderId}/delivery/update",
+                        "/orders/{orderId}/delivery/complete"
+                    ).hasAuthority("ADMIN")
+                    .requestMatchers("/{orderId}/prepare").hasAuthority("SELLER")
+                    .requestMatchers("/orders/**").hasAuthority("CUSTOMER")
+                    .requestMatchers("/api/coupons").hasAuthority("ADMIN")
+                    .requestMatchers("/api/coupons/**").hasAuthority("CUSTOMER")
+                    .requestMatchers("api/coupons/**").hasAuthority("PREMIUM")
                     .anyRequest().authenticated()
 
             }
