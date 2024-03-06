@@ -30,6 +30,9 @@ class Coupon(
     @Column(name = "statufields")
     var applicable: String, // 적용 가능 대상
 
+    @Column(name = "quantity")
+    var quantity: Int
+
 ) : BaseTimeEntity() {
 
     @Id

@@ -1,9 +1,6 @@
 package com.teamsparta.ecommerce.domain.coupon.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.teamsparta.ecommerce.domain.coupon.model.Coupon
-import com.teamsparta.ecommerce.domain.coupon.model.CouponBox
-import com.teamsparta.ecommerce.domain.coupon.repository.CouponBoxRepository
 import com.teamsparta.ecommerce.domain.coupon.repository.CouponCountRepository
 import com.teamsparta.ecommerce.domain.coupon.repository.CouponRepository
 import com.teamsparta.ecommerce.domain.member.repository.MemberRepository
@@ -22,10 +19,9 @@ import org.springframework.data.redis.core.RedisTemplate
 
 @Service
 class CouponService(
-    private val memberRepository: MemberRepository,
-    private val couponRepository: CouponRepository,
     private val couponCountRepository: CouponCountRepository,
-    private val couponBoxRepository: CouponBoxRepository,
+    private val couponRepository: CouponRepository,
+    private val memberRepository: MemberRepository,
     private val redissonClient: RedissonClient,
     private val redisTemplate: RedisTemplate<String, String>,
 
@@ -52,6 +48,7 @@ class CouponService(
             status = request.status,
             type = request.type,
             applicable = request.applicable,
+            quantity = request.quantity,
             member = member
         )
         return couponRepository.save(coupon)
@@ -62,12 +59,14 @@ class CouponService(
     /**
      * 사용자 선착순 쿠폰 발급
      * */
-    fun downloadCoupon(memberId: Long, couponId: Long): CouponBox {
-        val lock = redissonClient.getLock(couponLockName)
+    @Transactional
+    fun downloadCoupon(memberId: Long, couponId: Long): String {
+        val lock = redissonClient.getLock("$couponId") // couponId를 키로 하는 Lock 조회
+        val isLocked = lock.tryLock(10, 3, TimeUnit.SECONDS) // 10초 동안 Lock 획득, 이후 3초간 Lock 유지.
 
         try {
-            // 특정 시간동안 락 획득( 최대로 대기할 시간, 최대 대기 시간 동안 대기 중인 스레드들 사이의 간격, 시간의 단위 )
-            if (!lock.tryLock(10, 3, TimeUnit.SECONDS)) {
+            // Lock 획득 실패
+            if (!isLocked) {
                 throw RuntimeException("Lock 획득 실패")
             }
 
@@ -79,26 +78,24 @@ class CouponService(
             logger.info("현재 쿠폰 수량 : {}", couponNum)
 
             // 카운터가 정해진 수량을 초과하면 쿠폰 발급 거부
-            if (couponNum > 100) {
+            if (couponNum > coupon.quantity) {
                 throw BadRequestException("죄송합니다, 쿠폰이 모두 소진되었습니다!!!", ErrorCode.BAD_REQUEST)
             }
 
             // Redis 카운터 증가
             val count = couponCountRepository.increment()
 
-            // Redis에 쿠폰 정보 저장
-            // CouponBox 객체를 JSON 형태의 문자열로 변환
-            val couponBox = CouponBox(member = member, coupon = coupon)
-            val couponBoxJson = ObjectMapper().writeValueAsString(couponBox)
-            redisTemplate.opsForValue().set("couponBox:$memberId:$couponId", couponBoxJson)
+            // Redis에 쿠폰 정보 저장( memberId, couponId )
+            val key = "couponBox:$couponId"
+            redisTemplate.opsForValue().set(key, memberId.toString())
 
-            return couponBox
+            return memberId.toString()
 
         } catch (e: InterruptedException) {
-            throw RuntimeException(e)
+            throw Exception("Thread Interrupted")
         } finally {
-            // 락이 걸려있다면 락 해제
-            if (lock.isLocked) {
+            // Lock 반환( Lock의 주체가 이 로직을 호출한 쓰레드일 경우에만 반환 )
+            if (lock.isLocked && lock.isHeldByCurrentThread) {
                 lock.unlock()
             }
         }

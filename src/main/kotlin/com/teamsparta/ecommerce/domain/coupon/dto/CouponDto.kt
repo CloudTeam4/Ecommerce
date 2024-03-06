@@ -10,7 +10,8 @@ data class CouponDto(
     var deductedPrice: Int,
     var status: String,
     var type: Boolean,
-    var applicable: String
+    var applicable: String,
+    var quantity: Int
 
 ) {
 
@@ -23,7 +24,8 @@ data class CouponDto(
                 deductedPrice = coupon.deductedPrice,
                 status = coupon.status,
                 type = coupon.type,
-                applicable = coupon.applicable
+                applicable = coupon.applicable,
+                quantity = coupon.quantity
             )
             return dto
         }
@@ -37,7 +39,8 @@ data class CouponDto(
                     deductedPrice = it.deductedPrice,
                     status = it.status,
                     type = it.type,
-                    applicable = it.applicable
+                    applicable = it.applicable,
+                    quantity = it.quantity
                 )
 
                 dto
