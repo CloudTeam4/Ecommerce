@@ -57,7 +57,6 @@ class CouponService(
     /**
      * 사용자 선착순 쿠폰 발급
      * */
-    @Transactional
     fun downloadCoupon(memberId: Long, couponId: Long): String {
         val lock = redissonClient.getLock("$couponId") // couponId를 키로 하는 Lock 조회
         val isLocked = lock.tryLock(10, 3, TimeUnit.SECONDS) // 10초 동안 Lock 획득, 이후 3초간 Lock 유지.
