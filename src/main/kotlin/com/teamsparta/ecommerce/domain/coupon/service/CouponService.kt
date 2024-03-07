@@ -88,6 +88,8 @@ class CouponService(
             val key = "couponBox:$couponId"
             redisTemplate.opsForValue().set(key, memberId.toString())
 
+            rabbitService.sendMessage(couponId.toString(), memberId.toString())
+
             return memberId.toString()
 
         } catch (e: InterruptedException) {
