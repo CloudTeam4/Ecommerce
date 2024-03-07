@@ -1,5 +1,6 @@
 package com.teamsparta.ecommerce.domain.member.dto
 
+import jakarta.annotation.Nullable
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotNull
 
@@ -23,6 +24,9 @@ data class MemberSignUpDto(
     @field:NotNull(message = "Address is a required field")
     val address : String,
 
+    @field:NotNull
     val role : String,
+
+    @field:Nullable
     val adminCode : String
 )

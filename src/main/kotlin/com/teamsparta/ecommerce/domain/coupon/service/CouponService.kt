@@ -77,7 +77,7 @@ class CouponService(
             logger.info("현재 쿠폰 수량 : {}", couponNum)
 
             // 카운터가 정해진 수량을 초과하면 쿠폰 발급 거부
-            if (couponNum > coupon.quantity) {
+            if (couponNum >= coupon.quantity) {
                 throw BadRequestException("죄송합니다, 쿠폰이 모두 소진되었습니다!!!", ErrorCode.BAD_REQUEST)
             }
 

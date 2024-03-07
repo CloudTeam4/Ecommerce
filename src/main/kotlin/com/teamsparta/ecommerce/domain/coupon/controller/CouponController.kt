@@ -46,11 +46,11 @@ class CouponController(
      * */
     @PostMapping("/api/coupons/{couponId}")
     fun downloadCoupon(
-        @AuthenticationPrincipal user: User,
+        @AuthenticationPrincipal user: UserDetailsImpl,
         @PathVariable couponId: Long,
     ) : ResponseEntity<SingleResponse<String>> {
         try {
-            val coupon = couponService.downloadCoupon(user.username.toLong(), couponId)
+            val coupon = couponService.downloadCoupon(user.getMemberId(), couponId)
             return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(SingleResponse.success("축하합니다! 쿠폰이 발급 되었습니다."))
