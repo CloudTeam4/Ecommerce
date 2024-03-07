@@ -3,6 +3,7 @@ package com.teamsparta.ecommerce.domain.cart.service
 import com.teamsparta.ecommerce.domain.cart.dto.AddItemToCartRequestDto
 import com.teamsparta.ecommerce.domain.cart.dto.CartResponseDto
 import com.teamsparta.ecommerce.domain.cart.dto.DeleteItemFromCartRequestDto
+import com.teamsparta.ecommerce.domain.cart.dto.UpdateProductQuantityRequestDto
 import com.teamsparta.ecommerce.domain.cart.model.Cart
 import com.teamsparta.ecommerce.domain.cart.model.CartItem
 import com.teamsparta.ecommerce.domain.cart.repository.CartItemRepository
@@ -51,6 +52,21 @@ class CartService(
             cartItem.product.itemId in deleteRequestIdList
         }
         cartRepository.save(cart)
+    }
+
+    @Transactional
+    fun updateProductQuantity(memberId: Long, updateProductQuantityRequestDto: UpdateProductQuantityRequestDto){
+
+        val cart = findCartByMemberId(memberId)
+        val cartItemList = cart.cartItemList
+
+        val targetItem = cartItemList.find { it.product.itemId == updateProductQuantityRequestDto.productId }
+            ?: throw NotFoundException("Product not found in the cart")
+
+        targetItem.quantity = updateProductQuantityRequestDto.quantity
+
+        cartItemRepository.save(targetItem)
+
     }
 
     @Transactional(readOnly = true)

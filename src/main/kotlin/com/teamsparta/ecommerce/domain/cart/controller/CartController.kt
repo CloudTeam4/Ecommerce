@@ -3,6 +3,7 @@ package com.teamsparta.ecommerce.domain.cart.controller
 import com.teamsparta.ecommerce.domain.cart.dto.AddItemToCartRequestDto
 import com.teamsparta.ecommerce.domain.cart.dto.CartResponseDto
 import com.teamsparta.ecommerce.domain.cart.dto.DeleteItemFromCartRequestDto
+import com.teamsparta.ecommerce.domain.cart.dto.UpdateProductQuantityRequestDto
 import com.teamsparta.ecommerce.domain.cart.service.CartService
 import com.teamsparta.ecommerce.security.userdetails.UserDetailsImpl
 import com.teamsparta.ecommerce.util.web.response.ListResponse
@@ -36,11 +37,19 @@ class CartController(private val cartService: CartService) {
         return ResponseEntity(SingleResponse.success(), HttpStatus.OK)
     }
 
+    @PostMapping("/update")
+    fun updateProductQuantity(@RequestBody updateProductQuantityRequestDto: UpdateProductQuantityRequestDto,
+                              @AuthenticationPrincipal member: UserDetailsImpl
+    ):ResponseEntity<SingleResponse<String>>{
+        cartService.updateProductQuantity(member.getMemberId(), updateProductQuantityRequestDto)
+        return ResponseEntity(SingleResponse.success(), HttpStatus.OK)
+    }
+
     @GetMapping("/list")
     fun getProductListFromCart(@AuthenticationPrincipal member: UserDetailsImpl
     ):ResponseEntity<ListResponse<CartResponseDto>>{
         val response = ListResponse(
-            message = "Successfully got the Cart",
+            message = "Successfully retrieved the cart contents",
             data = cartService.getProductListFromCart(member.getMemberId())
         )
 
