@@ -1,5 +1,6 @@
 package com.teamsparta.ecommerce.domain.member.model
 
+import com.teamsparta.ecommerce.domain.cart.model.Cart
 import com.teamsparta.ecommerce.util.enum.Role
 import jakarta.persistence.*
 
@@ -23,7 +24,11 @@ data class Member(
     var nickname : String,
 
     @Enumerated(EnumType.STRING)
-    var role : Role
+    var role : Role,
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    @JoinColumn(name = "cart_id")
+    var cart: Cart? = null
 
 ){
     @Id
