@@ -14,6 +14,7 @@ import org.redisson.api.RedissonClient
 import org.springframework.stereotype.Service
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.redis.core.RedisTemplate
 
 @Service
@@ -22,7 +23,9 @@ class CouponService(
     private val couponRepository: CouponRepository,
     private val memberRepository: MemberRepository,
     private val redissonClient: RedissonClient,
-    private val redisTemplate: RedisTemplate<String, String>
+    private val redisTemplate: RedisTemplate<String, String>,
+    private val rabbitService: RabbitService,
+
 ) {
 
     private val logger = LoggerFactory.getLogger(CouponService::class.java)
@@ -73,7 +76,7 @@ class CouponService(
             logger.info("현재 쿠폰 수량 : {}", couponNum)
 
             // 카운터가 정해진 수량을 초과하면 쿠폰 발급 거부
-            if (couponNum >= coupon.quantity) {
+            if (couponNum > coupon.quantity) {
                 throw BadRequestException("죄송합니다, 쿠폰이 모두 소진되었습니다!!!", ErrorCode.BAD_REQUEST)
             }
 
