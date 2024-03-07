@@ -8,6 +8,7 @@ import com.teamsparta.ecommerce.exception.BadRequestException
 import com.teamsparta.ecommerce.exception.ErrorCode
 import com.teamsparta.ecommerce.exception.NotFoundException
 import com.teamsparta.ecommerce.util.enum.Role
+import com.teamsparta.ecommerce.util.rabbit.RabbitService
 import com.teamsparta.ecommerce.util.web.request.CouponCreateRequest
 import jakarta.transaction.Transactional
 import org.redisson.api.RedissonClient
@@ -26,7 +27,7 @@ class CouponService(
     private val redisTemplate: RedisTemplate<String, String>,
     private val rabbitService: RabbitService,
 
-) {
+    ) {
 
     private val logger = LoggerFactory.getLogger(CouponService::class.java)
 
