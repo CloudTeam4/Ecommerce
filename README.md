@@ -27,3 +27,5 @@
 </aside>
 
 ## ⚒️ [ Architecture ]
+# 선착수 쿠폰 이벤트
+<img width="775" alt="스크린샷 2024-03-07 오후 3 50 13" src="https://github.com/CloudTeam4/Ecommerce/assets/68779402/20f2357e-2e8a-40dd-9ab4-184f808d960e">
