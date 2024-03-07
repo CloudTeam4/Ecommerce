@@ -71,7 +71,7 @@ class CouponService(
             val coupon = couponRepository.findById(couponId).orElseThrow { NotFoundException("쿠폰 정보를 찾을 수 없습니다.") }
 
             // 발급 전에 redis의 카운터 확인
-            val couponNum = redisTemplate.opsForValue().increment(COUPON_COUNT_KEY) ?: 0
+            val couponNum = redisTemplate.opsForValue().get(COUPON_COUNT_KEY)?.toLong() ?: 0
             logger.info("현재 쿠폰 수량 : {}", couponNum)
 
             // 카운터가 정해진 수량을 초과하면 쿠폰 발급 거부
@@ -80,7 +80,7 @@ class CouponService(
             }
 
             // Redis 카운터 증가
-            val count = redisTemplate.opsForValue().get(COUPON_COUNT_KEY)?.toLong() ?: 0
+            val count = redisTemplate.opsForValue().increment(COUPON_COUNT_KEY) ?: 0
 
             // Redis에 쿠폰 정보 저장( memberId, couponId )
             val key = "couponBox:$couponId"
