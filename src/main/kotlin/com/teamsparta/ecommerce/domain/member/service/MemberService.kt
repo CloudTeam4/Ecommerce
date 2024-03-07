@@ -1,7 +1,6 @@
 package com.teamsparta.ecommerce.domain.member.service
 
 import com.teamsparta.ecommerce.domain.cart.model.Cart
-import com.teamsparta.ecommerce.domain.cart.repository.CartRepository
 import com.teamsparta.ecommerce.domain.member.dto.MemberLoginDto
 import com.teamsparta.ecommerce.domain.member.dto.MemberSignUpDto
 import com.teamsparta.ecommerce.domain.member.model.Member
@@ -21,7 +20,6 @@ class MemberService(
     private val passwordEncoder: BCryptPasswordEncoder,
     private val jwtUtil: JwtUtil,
     private val response: HttpServletResponse,
-    private val cartRepository: CartRepository,
     @Value("\${secretAdminCode}")
     private val secretCode: String
 
@@ -69,18 +67,16 @@ class MemberService(
 
     private fun checkRoleAndSaveMember(memberSignUpDto: MemberSignUpDto, encodedPassword: String) {
         if (memberSignUpDto.role == "CUSTOMER") {
-            val member = memberRepository.save(
+            memberRepository.save(
                 Member(
                     email = memberSignUpDto.email,
                     password = encodedPassword,
                     phone = memberSignUpDto.phone,
                     address = memberSignUpDto.address,
                     nickname = memberSignUpDto.nickname,
-                    role = Role.CUSTOMER
+                    role = Role.CUSTOMER,
+                    cart = Cart()
                 )
-            )
-            cartRepository.save(
-                Cart(member = member)
             )
         } else if (memberSignUpDto.role == "SELLER") {
             memberRepository.save(
