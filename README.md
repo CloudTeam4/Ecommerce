@@ -33,3 +33,5 @@
 ## ⚒️ [ Architecture ]
 ### 선착순 쿠폰 발급 이벤트
 <img width="775" alt="스크린샷 2024-03-07 오후 3 50 13" src="https://github.com/CloudTeam4/Ecommerce/assets/68779402/20f2357e-2e8a-40dd-9ab4-184f808d960e">
+### CI / CD
+<img width="723" alt="스크린샷 2024-03-07 오후 4 08 13" src="https://github.com/CloudTeam4/Ecommerce/assets/68779402/4cec0f7a-21bb-458a-af07-ec727fb06504">
