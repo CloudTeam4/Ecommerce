@@ -15,7 +15,6 @@ import org.redisson.api.RedissonClient
 import org.springframework.stereotype.Service
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.redis.core.RedisTemplate
 
 @Service
@@ -69,7 +68,7 @@ class CouponService(
                 throw RuntimeException("Lock 획득 실패")
             }
 
-            val member = memberRepository.findById(memberId).orElseThrow { NotFoundException("회원 정보를 찾을 수 없습니다.") }
+
             val coupon = couponRepository.findById(couponId).orElseThrow { NotFoundException("쿠폰 정보를 찾을 수 없습니다.") }
 
             // 발급 전에 redis의 카운터 확인
@@ -77,7 +76,7 @@ class CouponService(
             logger.info("현재 쿠폰 수량 : {}", couponNum)
 
             // 카운터가 정해진 수량을 초과하면 쿠폰 발급 거부
-            if (couponNum > coupon.quantity) {
+            if (couponNum >= coupon.quantity) {
                 throw BadRequestException("죄송합니다, 쿠폰이 모두 소진되었습니다!!!", ErrorCode.BAD_REQUEST)
             }
 
