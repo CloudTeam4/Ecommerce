@@ -27,7 +27,7 @@ class CouponService(
     private val redisTemplate: RedisTemplate<String, String>,
     private val rabbitService: RabbitService,
 
-) {
+    ) {
 
     private val logger = LoggerFactory.getLogger(CouponService::class.java)
 
@@ -87,8 +87,6 @@ class CouponService(
             // Redis에 쿠폰 정보 저장( memberId, couponId )
             val key = "couponBox:$couponId"
             redisTemplate.opsForValue().set(key, memberId.toString())
-
-            rabbitService.sendMessage(couponId.toString(), memberId.toString())
 
             return memberId.toString()
 
