@@ -13,12 +13,12 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 
 
 @RestController
-@RequestMapping("/orders")
+@RequestMapping("/api/orders")
 class OrderController(
      private val orderService: OrderService,
      private val orderDetailService: OrderDetailService) {
 
-    @PostMapping
+    @PostMapping("/create")
     fun createOrder(@RequestBody orderRequestDto: OrderRequestDto,
                     @RequestParam memberEmail: String):
             ResponseEntity<OrderResponseDto> {
@@ -50,7 +50,7 @@ class OrderController(
         return ResponseEntity.ok().build()
     }
 
-    @PatchMapping("/{orderId}/delivery/update")
+    @PatchMapping("/{orderId}/delivery/ondelivery")
     fun orderOnDelivery(@PathVariable orderId: Long): ResponseEntity<Void> {
         orderService.orderOnDelivery(orderId)
         return ResponseEntity.ok().build()
