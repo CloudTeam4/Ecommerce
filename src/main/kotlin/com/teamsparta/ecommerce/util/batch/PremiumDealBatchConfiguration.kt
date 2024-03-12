@@ -3,6 +3,7 @@ package com.teamsparta.ecommerce.util.batch
 import com.teamsparta.ecommerce.domain.premiumdeal.model.PremiumDeal
 import com.teamsparta.ecommerce.domain.premiumdeal.model.PremiumDealApply
 import com.teamsparta.ecommerce.domain.premiumdeal.repository.PremiumDealApplyRepository
+import com.teamsparta.ecommerce.domain.premiumdeal.repository.PremiumDealRepository
 import com.teamsparta.ecommerce.domain.premiumdeal.service.PremiumDealApplyService
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
@@ -10,10 +11,12 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.job.builder.JobBuilder
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.core.step.builder.StepBuilder
+import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.item.ItemReader
 import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.item.data.builder.RepositoryItemReaderBuilder
+import org.springframework.batch.repeat.RepeatStatus
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.domain.Sort.Direction
@@ -23,14 +26,17 @@ import org.springframework.transaction.PlatformTransactionManager
 @EnableBatchProcessing
 class PremiumDealBatchConfiguration(
     private val premiumDealApplyRepository: PremiumDealApplyRepository,
-    private val premiumDealApplyService: PremiumDealApplyService
+    private val premiumDealApplyService: PremiumDealApplyService,
+    private val premiumDealRepository: PremiumDealRepository
 ) {
 
 
     @Bean
-    fun premiumDealJob(jobRepository: JobRepository, premiumDealStep: Step): Job {
+    fun premiumDealJob(jobRepository: JobRepository,deleteStep:Step,applyDeleteStep: Step,premiumDealStep: Step): Job {
         return JobBuilder("premiumDealJob", jobRepository)
-            .start(premiumDealStep)
+            .start(deleteStep)//특가삭제
+            .next(premiumDealStep)//apply-> 특가
+            .next(applyDeleteStep)//apply삭제
             .build()
     }
 
@@ -43,6 +49,23 @@ class PremiumDealBatchConfiguration(
             .writer(premiumDealItemWriter())
             .build()
     }
+
+    @Bean
+    fun deleteStep(jobRepository: JobRepository, transactionManger: PlatformTransactionManager,deleteTasklet: Tasklet): Step {
+        return StepBuilder("premiumDealStep",jobRepository)
+            .tasklet(deleteTasklet,transactionManger)
+            .build()
+    }
+
+    @Bean
+    fun applyDeleteStep(jobRepository: JobRepository, transactionManger: PlatformTransactionManager,applyDeleteTasklet:Tasklet): Step {
+        return StepBuilder("premiumDealStep",jobRepository)
+            .tasklet(applyDeleteTasklet, transactionManger)
+            .build()
+    }
+
+
+
 
     @Bean
     fun premiumDealApplyItemReader(): ItemReader<PremiumDealApply> {
@@ -67,6 +90,21 @@ class PremiumDealBatchConfiguration(
             deals.forEach { deal ->
                 premiumDealApplyService.save(deal)
             }
+        }
+    }
+    @Bean
+    fun applyDeleteTasklet(): Tasklet {
+        return Tasklet { _, _ ->
+            premiumDealApplyRepository.deleteAll()
+            println("특가삭제")
+            RepeatStatus.FINISHED
+        }
+    }
+    @Bean
+    fun deleteTasklet(): Tasklet {
+        return Tasklet { _, _ ->
+            premiumDealRepository.deleteAll()
+            RepeatStatus.FINISHED
         }
     }
 }
