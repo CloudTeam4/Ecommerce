@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.domain.Sort.Direction
 import org.springframework.transaction.PlatformTransactionManager
+import java.time.LocalDateTime
 
 @Configuration
 @EnableBatchProcessing
@@ -36,7 +37,6 @@ class PremiumDealBatchConfiguration(
         return JobBuilder("premiumDealJob", jobRepository)
             .start(deleteStep)//특가삭제
             .next(premiumDealStep)//apply-> 특가
-            .next(applyDeleteStep)//apply삭제
             .build()
     }
 
@@ -57,25 +57,23 @@ class PremiumDealBatchConfiguration(
             .build()
     }
 
-    @Bean
-    fun applyDeleteStep(jobRepository: JobRepository, transactionManger: PlatformTransactionManager,applyDeleteTasklet:Tasklet): Step {
-        return StepBuilder("premiumDealStep",jobRepository)
-            .tasklet(applyDeleteTasklet, transactionManger)
-            .build()
-    }
-
-
 
 
     @Bean
     fun premiumDealApplyItemReader(): ItemReader<PremiumDealApply> {
+        val now = LocalDateTime.now()
+        val startTime = now.minusDays(1).withHour(7).withMinute(1)
+        val endTime = now.withHour(6).withMinute(59)
+
         return RepositoryItemReaderBuilder<PremiumDealApply>()
             .name("premiumDealApplyItemReader")
             .repository(premiumDealApplyRepository)
-            .methodName("findAll")
+            .methodName("findByApplicationDateBetween")
+            .arguments(listOf(startTime, endTime))
             .sorts(mapOf("id" to Direction.ASC))
             .build()
     }
+
 
     @Bean
     fun premiumDealProcessor(): ItemProcessor<PremiumDealApply, PremiumDeal> {
@@ -96,7 +94,6 @@ class PremiumDealBatchConfiguration(
     fun applyDeleteTasklet(): Tasklet {
         return Tasklet { _, _ ->
             premiumDealApplyRepository.deleteAll()
-            println("특가삭제")
             RepeatStatus.FINISHED
         }
     }

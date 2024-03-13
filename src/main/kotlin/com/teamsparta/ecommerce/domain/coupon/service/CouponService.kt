@@ -115,17 +115,16 @@ class CouponService(
         for (member in members) {
             // 해당 멤버가 이미 쿠폰을 받았는지 확인
             val existingCouponBox = couponBoxRepository.findByMemberAndCoupon(member, coupon)
-            if (existingCouponBox.isPresent) {
-                throw Exception("멤버 ID ${member.id}는(은) 이미 쿠폰 ID ${coupon.name}를 받았습니다.")
-            } else {
+            if (!existingCouponBox.isPresent) {
                 // 멤버가 쿠폰을 받지 않았다면 새로운 쿠폰 박스를 생성
                 val newCouponBox = CouponBox(member = member, coupon = coupon)
                 couponBoxes.add(newCouponBox)
+            } else {
+                logger.info("멤버 ID ${member.id}는(은) 이미 쿠폰명 ${coupon.name}를 받았습니다.")
             }
         }
 
-        // 새로운 쿠폰 박스들을 저장
+        // 새로운 쿠폰 박스들 저장
         return couponBoxRepository.saveAll(couponBoxes)
     }
-
 }
