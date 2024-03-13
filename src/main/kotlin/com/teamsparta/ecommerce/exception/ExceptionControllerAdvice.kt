@@ -2,6 +2,7 @@ package com.teamsparta.ecommerce.exception
 
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
@@ -16,5 +17,13 @@ class ExceptionControllerAdvice {
         val exceptionResult = ExceptionResult(e.statusCode, e.customMessage, e.error)
 
         return ResponseEntity(exceptionResult, HttpStatus.valueOf(e.statusCode))
+    }
+
+    @ExceptionHandler
+    fun handleValidationExceptions(e: MethodArgumentNotValidException): ResponseEntity<ExceptionResult> {
+        val errors = e.bindingResult.fieldErrors.joinToString(separator = "; ") { it.defaultMessage ?: "Validation error" }
+        val exceptionResult = ExceptionResult(e.statusCode.value(), errors, ErrorCode.BAD_REQUEST)
+
+        return ResponseEntity(exceptionResult, HttpStatus.valueOf(e.statusCode.value()))
     }
 }

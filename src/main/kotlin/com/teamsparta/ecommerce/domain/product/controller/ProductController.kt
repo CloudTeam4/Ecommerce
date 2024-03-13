@@ -2,8 +2,7 @@ package com.teamsparta.ecommerce.domain.product.controller
 
 import com.teamsparta.ecommerce.domain.product.dto.ProductDto
 import com.teamsparta.ecommerce.domain.product.service.ProductService
-import com.teamsparta.ecommerce.exception.BadRequestException
-import com.teamsparta.ecommerce.exception.ErrorCode
+import com.teamsparta.ecommerce.security.userdetails.UserDetailsImpl
 import com.teamsparta.ecommerce.util.web.request.ProductCreateRequest
 import com.teamsparta.ecommerce.util.web.request.ProductUpdateRequest
 import com.teamsparta.ecommerce.util.web.response.ListResponse
@@ -17,27 +16,24 @@ import jakarta.validation.Valid
 import org.springframework.web.multipart.MultipartFile as MultipartFile1
 
 @RestController
+@RequestMapping("/api/items")
 class ProductController(
     private val productService: ProductService
 ) {
 
     // 상품 등록
-    @PostMapping("/api/items/{itemId}")
+    @PostMapping
     fun createMenu(
-        @AuthenticationPrincipal user: User,
-        @PathVariable itemId: Long,
+        @AuthenticationPrincipal user: UserDetailsImpl,
         @Valid @RequestPart("request") request: ProductCreateRequest,
         @RequestPart("image") image: MultipartFile1 // 이미지 파일을 받는 부분
     ): ResponseEntity<SingleResponse<ProductDto>> {
-        try {
-            val item = productService.addItem(user.username.toLong(), request, itemId,image)
+            val item = productService.addItem(user.getMemberId(), request, image)
             return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(SingleResponse.successOf("메뉴 등록에 성공했습니다!", ProductDto.fromEntity(item)))
-        } catch (e: BadRequestException) {
-            throw BadRequestException("상품 등록에 실패했습니다.", ErrorCode.BAD_REQUEST)
+                .body(SingleResponse.successOf("상품 등록에 성공했습니다!", ProductDto.fromEntity(item)))
         }
-    }
+//    }
 
 
     // 상품 전체 조회
@@ -48,14 +44,14 @@ class ProductController(
     }
 
     // 특정 상품 조회
-    @GetMapping("/api/items/{itemId}")
+    @GetMapping("/{itemId}")
     fun findItem(@PathVariable itemId: Long): ResponseEntity<SingleResponse<ProductDto>> {
         val item = productService.getItemById(itemId)
         return ResponseEntity(SingleResponse.successOf(item), HttpStatus.OK)
     }
 
     // 상품 수정
-    @PutMapping("/api/items/{itemId}")
+    @PutMapping("/{itemId}")
     fun updateItem(
         @AuthenticationPrincipal user: User,
         @PathVariable itemId: Long,
@@ -69,7 +65,7 @@ class ProductController(
 
 
     // 상품 삭제
-    @DeleteMapping("/api/items/{itemId}")
+    @DeleteMapping("/{itemId}")
     fun deleteItem(
         @AuthenticationPrincipal user: User,
         @PathVariable itemId: Long,

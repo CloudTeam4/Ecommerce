@@ -1,6 +1,8 @@
 package com.teamsparta.ecommerce.domain.coupon.service
 
 import com.teamsparta.ecommerce.domain.coupon.model.Coupon
+import com.teamsparta.ecommerce.domain.coupon.model.CouponBox
+import com.teamsparta.ecommerce.domain.coupon.repository.CouponBoxRepository
 import com.teamsparta.ecommerce.domain.coupon.repository.CouponRepository
 import com.teamsparta.ecommerce.domain.member.repository.MemberRepository
 import com.teamsparta.ecommerce.exception.BadRequestException
@@ -29,6 +31,7 @@ class CouponService(
     private val COUPON_COUNT_KEY: String,
     ) {
 
+
     private val logger = LoggerFactory.getLogger(CouponService::class.java)
 
     /**
@@ -37,7 +40,7 @@ class CouponService(
     @Transactional
     fun addCoupon(memberId: Long, request: CouponCreateRequest): Coupon {
         val member = memberRepository.findById(memberId).orElseThrow { NotFoundException("관리자 정보를 찾을 수 없습니다.") }
-        if(member.role != Role.ADMIN) {
+        if (member.role != Role.ADMIN) {
             throw BadRequestException("관리자만 쿠폰을 등록할 수 있습니다.")
         }
         val coupon = Coupon(
@@ -115,11 +118,36 @@ class CouponService(
         } catch (e: InterruptedException) {
             throw Exception("Thread Interrupted")
         }
-//        finally {
+        finally {
 //            // Lock 반환( Lock의 주체가 이 로직을 호출한 쓰레드일 경우에만 반환 )
 //            if (lock.isLocked && lock.isHeldByCurrentThread) {
 //                lock.unlock()
 //            }
-//        }
+        }
+    }
+
+
+    @Transactional
+    fun assignCouponToUsers(role: Role, couponId: Long): List<CouponBox> {
+        val members = memberRepository.findByRole(role)
+        if (members.isEmpty()) throw NotFoundException("회원 정보를 찾을 수 없습니다.")
+
+        val coupon = couponRepository.findById(couponId).orElseThrow { NotFoundException("쿠폰 정보를 찾을 수 없습니다.") }
+
+        val couponBoxes = mutableListOf<CouponBox>()
+        for (member in members) {
+            // 해당 멤버가 이미 쿠폰을 받았는지 확인
+            val existingCouponBox = couponBoxRepository.findByMemberAndCoupon(member, coupon)
+            if (!existingCouponBox.isPresent) {
+                // 멤버가 쿠폰을 받지 않았다면 새로운 쿠폰 박스를 생성
+                val newCouponBox = CouponBox(member = member, coupon = coupon)
+                couponBoxes.add(newCouponBox)
+            } else {
+                logger.info("멤버 ID ${member.id}는(은) 이미 쿠폰명 ${coupon.name}를 받았습니다.")
+            }
+        }
+
+        // 새로운 쿠폰 박스들 저장
+        return couponBoxRepository.saveAll(couponBoxes)
     }
 }

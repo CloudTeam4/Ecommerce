@@ -32,9 +32,9 @@ class ProductService(
      * 상품 등록
      * */
     @Transactional
-    fun addItem(memberId: Long, request: ProductCreateRequest, itemId: Long,image: MultipartFile): Product {
+    fun addItem(memberId: Long, request: ProductCreateRequest, image: MultipartFile): Product {
         val member = memberRepository.findById(memberId).orElseThrow { NotFoundException("판매자 정보를 찾을 수 없습니다.") }
-        if(member.role != Role.SELLER) {
+        if(member.role != Role.ADMIN) {
             throw BadRequestException("판매자만 상품을 등록할 수 있습니다.")
         }
         val imageKey = "product-images/${image.originalFilename}"

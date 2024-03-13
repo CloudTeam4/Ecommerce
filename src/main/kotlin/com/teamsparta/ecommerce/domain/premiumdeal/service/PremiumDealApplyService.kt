@@ -8,6 +8,7 @@ import com.teamsparta.ecommerce.domain.premiumdeal.repository.PremiumDealReposit
 import com.teamsparta.ecommerce.domain.product.repository.ProductRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
 
 @Service
 class PremiumDealApplyService(
@@ -23,7 +24,8 @@ class PremiumDealApplyService(
 
         val premiumDealApply = PremiumDealApply(
             product = product,
-            discountRate = request.discountRate
+            discountRate = request.discountRate,
+            applicationDate = LocalDateTime.now()
         )
 
         return premiumDealApplyRepository.save(premiumDealApply)
