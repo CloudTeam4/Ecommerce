@@ -33,9 +33,9 @@
 ## ⚒️ [ Architecture ]
 ### 선착순 쿠폰 발급 이벤트
 <img width="775" alt="스크린샷 2024-03-07 오후 3 50 13" src="https://github.com/CloudTeam4/Ecommerce/assets/68779402/20f2357e-2e8a-40dd-9ab4-184f808d960e"> </br>
-
+### 특가상품 이벤트 생성
 <img width="775" alt="스크린샷 2024-03-07 오후 3 50 13" src="https://github.com/CloudTeam4/Ecommerce/assets/77678677/ab8171e0-b4f2-4efc-bc83-ef46c6354a6d"></br>
-
+### 특정 회원들에게 쿠폰 발급
 <img width="775" alt="스크린샷 2024-03-07 오후 3 50 13" src="https://github.com/CloudTeam4/Ecommerce/assets/77678677/a7703786-2c75-4354-8ce8-5a2588bd4687"></br>
 
 ### CI / CD
