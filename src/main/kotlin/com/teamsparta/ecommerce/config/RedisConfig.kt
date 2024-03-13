@@ -10,9 +10,11 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.serializer.StringRedisSerializer
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.transaction.annotation.EnableTransactionManagement
 
 
 @Configuration
+@EnableTransactionManagement
 class RedisConfig {
     @Value("\${spring.data.redis.host}")
     private val host: String? = null
@@ -49,6 +51,8 @@ class RedisConfig {
 
         // 모든 경우
         redisTemplate.setDefaultSerializer(StringRedisSerializer())
+
+        redisTemplate.setEnableTransactionSupport(true)
 
         return redisTemplate
     }

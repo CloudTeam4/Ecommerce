@@ -16,19 +16,21 @@ import org.redisson.api.RedissonClient
 import org.springframework.stereotype.Service
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.redis.core.RedisOperations
+import java.util.concurrent.TimeUnit
 import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.data.redis.core.SessionCallback
 
 @Service
 class CouponService(
     private val couponRepository: CouponRepository,
     private val memberRepository: MemberRepository,
-    private val redissonClient: RedissonClient,
     private val redisTemplate: RedisTemplate<String, String>,
     private val rabbitService: RabbitService,
     @Value("\${couponKey}")
     private val COUPON_COUNT_KEY: String,
-    private val couponBoxRepository: CouponBoxRepository
-) {
+    ) {
+
 
     private val logger = LoggerFactory.getLogger(CouponService::class.java)
 
@@ -72,23 +74,44 @@ class CouponService(
             val member = memberRepository.findById(couponId).orElseThrow { NotFoundException("회원 정보를 찾을 수 없습니다.") }
             val coupon = couponRepository.findById(couponId).orElseThrow { NotFoundException("쿠폰 정보를 찾을 수 없습니다.") }
 
-            // 발급 전에 redis의 카운터 확인
-            val couponNum = redisTemplate.opsForValue().get(COUPON_COUNT_KEY)?.toLong() ?: 0
-            logger.info("현재 쿠폰 수량 : {}", couponNum)
+            val setKey = "coupon:issued:$couponId"
 
-            // 카운터가 정해진 수량을 초과하면 쿠폰 발급 거부
-            if (couponNum >= coupon.quantity) {
-                throw BadRequestException("죄송합니다, 쿠폰이 모두 소진되었습니다!!!", ErrorCode.BAD_REQUEST)
+            redisTemplate.execute {
+                it.watch(COUPON_COUNT_KEY.toByteArray())
+
+                // 트랜잭션 시작 MULTI
+                it.multi()
+                // 발급 전에 Redis SET에서 memberId 확인
+                val isMemberAlreadyIssued = it.commands().sIsMember(setKey.toByteArray(), memberId.toString().toByteArray())
+                if (isMemberAlreadyIssued != null) {
+                    throw BadRequestException("이미 쿠폰을 다운로드 받았습니다.", ErrorCode.BAD_REQUEST)
+                }
+
+                // 발급 전에 Redis의 카운터 확인
+                val couponNum = it.commands().get(COUPON_COUNT_KEY.toByteArray()) ?: 0
+                logger.info("현재 쿠폰 수량 : {}", couponNum)
+
+                // 카운터가 정해진 수량을 초과하면 쿠폰 발급 거부
+                if (couponNum.toString().toInt() >= coupon.quantity) {
+                    throw BadRequestException("죄송합니다, 쿠폰이 모두 소진되었습니다!!!", ErrorCode.BAD_REQUEST)
+                }
+
+                // Redis 카운터 증가
+                it.commands().incr(COUPON_COUNT_KEY.toByteArray())
+
+                // Redis SET에 memberId 추가
+                it.commands().sAdd(setKey.toByteArray(), memberId.toString().toByteArray())
+
+                // Redis에 쿠폰 정보 저장(memberId, couponId)
+                val key = "couponBox:$couponId"
+                it.commands().sAdd(key.toByteArray(), memberId.toString().toByteArray())
+
+                // RabbitMQ로 메시지 전송
+                rabbitService.sendMessage(couponId.toString(), memberId.toString())
+
+                // 트랜잭션 실행 EXEC
+                return@execute it.exec()
             }
-
-            // Redis 카운터 증가
-            val count = redisTemplate.opsForValue().increment(COUPON_COUNT_KEY) ?: 0
-
-            // Redis에 쿠폰 정보 저장( memberId, couponId )
-            val key = "couponBox:$couponId"
-            redisTemplate.opsForValue().set(key, memberId.toString())
-
-            rabbitService.sendMessage(couponId.toString(), memberId.toString())
 
             return memberId.toString()
 
