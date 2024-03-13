@@ -33,7 +33,7 @@ class PremiumDealBatchConfiguration(
 
 
     @Bean
-    fun premiumDealJob(jobRepository: JobRepository,deleteStep:Step,applyDeleteStep: Step,premiumDealStep: Step): Job {
+    fun premiumDealJob(jobRepository: JobRepository,deleteStep:Step,premiumDealStep: Step): Job {
         return JobBuilder("premiumDealJob", jobRepository)
             .start(deleteStep)//특가삭제
             .next(premiumDealStep)//apply-> 특가

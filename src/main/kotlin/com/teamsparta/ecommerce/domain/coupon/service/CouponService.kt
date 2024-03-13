@@ -29,6 +29,7 @@ class CouponService(
     private val rabbitService: RabbitService,
     @Value("\${couponKey}")
     private val COUPON_COUNT_KEY: String,
+    private val couponBoxRepository: CouponBoxRepository
     ) {
 
 
