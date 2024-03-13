@@ -34,7 +34,8 @@
 ### 선착순 쿠폰 발급 이벤트
 <img width="775" alt="스크린샷 2024-03-07 오후 3 50 13" src="https://github.com/CloudTeam4/Ecommerce/assets/68779402/20f2357e-2e8a-40dd-9ab4-184f808d960e"> </br>
 
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/4601abf8-7e63-49b1-9b8b-04bcaac13177/3ce7eb8b-10aa-487c-beaf-92d12ff8e65a/Untitled.png)
+<img width="775" alt="스크린샷 2024-03-07 오후 3 50 13" src="https://github.com/CloudTeam4/Ecommerce/assets/77678677/ab8171e0-b4f2-4efc-bc83-ef46c6354a6d"></br>
+
 
 ### CI / CD
 <img width="723" alt="스크린샷 2024-03-07 오후 4 08 13" src="https://github.com/CloudTeam4/Ecommerce/assets/68779402/4cec0f7a-21bb-458a-af07-ec727fb06504">
