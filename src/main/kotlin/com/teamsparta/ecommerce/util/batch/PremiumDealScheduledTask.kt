@@ -14,7 +14,8 @@ class PremiumDealScheduledTask(
     private val premiumDealJob: Job
 ) {
 
-    @Scheduled(cron = "0 0 7 * * *") // 매일 07시에 실행
+//    @Scheduled(cron = "0 0 7 * * *") // 매일 07시에 실행
+    @Scheduled(cron = "00 46 13 * * *")
     fun runPremiumDealJob() {
         try {
             val jobParameters = JobParametersBuilder()
