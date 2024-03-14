@@ -5,5 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface PremiumDealRepository:JpaRepository<PremiumDeal,Long> {
+interface PremiumDealRepository : JpaRepository<PremiumDeal, Long>{
+
+    fun findByPremiumDealApplyId(applyId: Long): PremiumDeal?
+
+
 }

@@ -11,6 +11,7 @@ import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
@@ -41,20 +42,21 @@ class CouponController(
     /**
      * 사용자 선착순 쿠폰 발급
      * */
-//    @PostMapping("/api/coupons/{couponId}")
-//    fun downloadCoupon(
-//        @AuthenticationPrincipal user: UserDetailsImpl,
-//        @PathVariable couponId: Long,
-//    ) : ResponseEntity<SingleResponse<String>> {
-//        try {
-//            val coupon = couponService.downloadCoupon(user.getMemberId(), couponId)
-//            return ResponseEntity
-//                .status(HttpStatus.OK)
-//                .body(SingleResponse.success("축하합니다! 쿠폰이 발급 되었습니다."))
-//        } catch (e: BadRequestException) {
-//            throw BadRequestException("죄송합니다, 쿠폰이 모두 소진되었습니다.", ErrorCode.BAD_REQUEST)
-//        }
+    @PostMapping("/api/coupons/{couponId}")
+    fun downloadCoupon(
+        @AuthenticationPrincipal user: UserDetailsImpl,
+        @PathVariable couponId: Long,
+    ) : ResponseEntity<SingleResponse<String>> {
+        try {
+            val coupon = couponService.downloadCoupon(user.getMemberId(), couponId)
+            return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SingleResponse.success("축하합니다! 쿠폰이 발급 되었습니다."))
+        } catch (e: BadRequestException) {
+            throw BadRequestException("죄송합니다, 쿠폰이 모두 소진되었습니다.", ErrorCode.BAD_REQUEST)
+        }
     }
+}
 
 
 

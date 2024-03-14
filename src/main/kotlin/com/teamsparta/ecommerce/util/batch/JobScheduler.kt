@@ -15,7 +15,7 @@ import org.springframework.batch.core.JobParametersBuilder
 
         override fun run(vararg args: String?) {
             val currentDate = LocalDate.now()
-            val targetDate = LocalDate.of(2024, 3, 12)
+            val targetDate = LocalDate.of(2024, 3, 14)
 
             // 조건 확인 로직을 메서드로 추출하여 더 많은 조건을 유연하게 추가 가능
             if (shouldRunJob(currentDate, targetDate)) {
