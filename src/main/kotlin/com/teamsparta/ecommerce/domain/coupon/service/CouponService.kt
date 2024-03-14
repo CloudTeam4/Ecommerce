@@ -8,6 +8,7 @@ import com.teamsparta.ecommerce.domain.member.repository.MemberRepository
 import com.teamsparta.ecommerce.exception.BadRequestException
 import com.teamsparta.ecommerce.exception.ErrorCode
 import com.teamsparta.ecommerce.exception.NotFoundException
+import com.teamsparta.ecommerce.util.enum.CouponStatus
 import com.teamsparta.ecommerce.util.enum.Role
 import com.teamsparta.ecommerce.util.rabbit.RabbitService
 import com.teamsparta.ecommerce.util.web.request.CouponCreateRequest
@@ -52,7 +53,8 @@ class CouponService(
             type = request.type,
             applicable = request.applicable,
             quantity = request.quantity,
-            member = member
+            member = member,
+            couponstatus = CouponStatus.ACTIVE
         )
         return couponRepository.save(coupon)
 

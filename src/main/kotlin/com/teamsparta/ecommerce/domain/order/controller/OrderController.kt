@@ -19,10 +19,9 @@ class OrderController(
      private val orderDetailService: OrderDetailService) {
 
     @PostMapping("/create")
-    fun createOrder(@RequestBody orderRequestDto: OrderRequestDto,
-                    @RequestParam memberEmail: String):
+    fun createOrder(@RequestBody orderRequestDto: OrderRequestDto):
             ResponseEntity<OrderResponseDto> {
-        val orderResponseDto = orderService.createOrder(orderRequestDto, memberEmail)
+        val orderResponseDto = orderService.createOrder(orderRequestDto)
         return ResponseEntity.ok(orderResponseDto)
     }
 

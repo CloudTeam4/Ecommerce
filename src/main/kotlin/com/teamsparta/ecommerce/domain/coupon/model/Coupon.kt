@@ -2,6 +2,7 @@ package com.teamsparta.ecommerce.domain.coupon.model
 
 import com.teamsparta.ecommerce.domain.common.BaseTimeEntity
 import com.teamsparta.ecommerce.domain.member.model.Member
+import com.teamsparta.ecommerce.util.enum.CouponStatus
 import jakarta.persistence.*
 import org.springframework.data.redis.core.RedisHash
 
@@ -31,12 +32,17 @@ class Coupon(
     var applicable: String, // 적용 가능 대상
 
     @Column(name = "quantity")
-    var quantity: Int
+    var quantity: Int,
+
+    @Column(name = "couponstatus")
+    var couponstatus: CouponStatus,
 
 ) : BaseTimeEntity() {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val couponId: Long? = null
-
+    fun isValid():Boolean {
+        return this.couponstatus == CouponStatus.ACTIVE
+    }
 }

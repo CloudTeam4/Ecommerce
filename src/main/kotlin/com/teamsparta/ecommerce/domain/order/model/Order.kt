@@ -40,5 +40,11 @@ class Order (
 
     @OneToMany(mappedBy = "order", cascade = [CascadeType.ALL], orphanRemoval = true)
     var orderDetails: MutableList<OrderDetail> = mutableListOf()
+
+
     ){
+    fun addOrderDetail(orderDetail: OrderDetail) {
+        orderDetails.add(orderDetail)
+        orderDetail.order = this
+    }
 }

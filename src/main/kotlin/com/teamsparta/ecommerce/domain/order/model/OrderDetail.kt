@@ -1,6 +1,7 @@
 package com.teamsparta.ecommerce.domain.order.model
 
 import com.teamsparta.ecommerce.domain.product.model.Product
+import com.teamsparta.ecommerce.domain.premiumdeal.model.PremiumDeal
 import jakarta.persistence.*
 
 @Entity
@@ -18,10 +19,22 @@ class OrderDetail (
     var order: Order? = null,
 
     @ManyToOne
-    @JoinColumn(name = "ITEM_ID")
+    @JoinColumn(name = "PRODUCT_ID")
     var product: Product? = null,
 
+    @ManyToOne
+    @JoinColumn(name = "PREMIUM_DEAL_ID", nullable = true)
+    var premiumDeal: PremiumDeal? = null
 ){
+    fun calculatePrice(): Int {
+        // 기본 상품 가격 계산
+        val productPrice = product?.price ?: 0
+        val totalPrice = productPrice * quantity
 
-
+        // 특가 상품이면 할인 가격 적용
+        return premiumDeal?.let {
+            val discountPrice = it.discountedPrice
+            discountPrice * quantity
+        } ?: totalPrice
+    }
 }

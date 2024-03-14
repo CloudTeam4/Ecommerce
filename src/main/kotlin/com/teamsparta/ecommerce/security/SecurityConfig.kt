@@ -21,7 +21,15 @@ class SecurityConfig(private val jwtUtil: JwtUtil) {
 
             .csrf { it.disable() }
             .authorizeHttpRequests {
-                it.requestMatchers("/api/members/**", "/swagger-ui/**", "/v3/api-docs/**", "/h2-console/**","/api/premium-deals/**","/api/items/**").permitAll()
+                it.requestMatchers(
+                    "/api/members/**",
+                    "/swagger-ui/**",
+                    "/v3/api-docs/**",
+                    "/h2-console/**",
+                    "/api/premium-deals/**",
+                    "/api/items/**",
+                    "/api/orders/create"
+                ).permitAll()
                     .requestMatchers(
                         "/orders/{orderId}/delivery/start",
                         "/orders/{orderId}/delivery/update",

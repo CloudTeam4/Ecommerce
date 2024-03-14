@@ -35,7 +35,7 @@ class BatchConfiguration(
     @Bean
     fun tasklet1(): Tasklet {
         return Tasklet { _, _ ->
-            couponService.assignCouponToUsers(Role.CUSTOMER,2)
+            couponService.assignCouponToUsers(Role.PREMIUM,4)
             RepeatStatus.FINISHED
         }
     }
