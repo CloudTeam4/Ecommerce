@@ -1,12 +1,5 @@
 package com.teamsparta.ecommerce.integrationtest
 
-import com.teamsparta.ecommerce.EcommerceApplication
-import com.teamsparta.ecommerce.domain.coupon.repository.CouponBoxRepository
-import com.teamsparta.ecommerce.domain.coupon.repository.CouponRepository
-import com.teamsparta.ecommerce.domain.coupon.service.CouponService
-import com.teamsparta.ecommerce.domain.member.repository.MemberRepository
-import com.teamsparta.ecommerce.domain.member.service.MemberService
-import com.teamsparta.ecommerce.util.rabbit.RabbitService
 import org.junit.jupiter.api.BeforeAll
 import org.redisson.spring.data.connection.RedissonConnectionFactory
 import org.springframework.beans.factory.annotation.Autowired
