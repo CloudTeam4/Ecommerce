@@ -56,4 +56,8 @@ class CouponController(
             throw BadRequestException("죄송합니다, 쿠폰이 모두 소진되었습니다.", ErrorCode.BAD_REQUEST)
         }
     }
+
 }
+
+
+

@@ -1,6 +1,7 @@
 package com.teamsparta.ecommerce.domain.member.service
 
 import com.teamsparta.ecommerce.domain.cart.model.Cart
+import com.teamsparta.ecommerce.domain.cart.repository.CartRepository
 import com.teamsparta.ecommerce.domain.member.dto.MemberLoginDto
 import com.teamsparta.ecommerce.domain.member.dto.MemberSignUpDto
 import com.teamsparta.ecommerce.domain.member.model.Member
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class MemberService(
     private val memberRepository: MemberRepository,
+    private val cartRepository: CartRepository,
     private val passwordEncoder: BCryptPasswordEncoder,
     private val jwtUtil: JwtUtil,
     private val response: HttpServletResponse,
@@ -67,17 +69,17 @@ class MemberService(
 
     private fun checkRoleAndSaveMember(memberSignUpDto: MemberSignUpDto, encodedPassword: String) {
         if (memberSignUpDto.role == "CUSTOMER") {
-            memberRepository.save(
+            val member = memberRepository.save(
                 Member(
                     email = memberSignUpDto.email,
                     password = encodedPassword,
                     phone = memberSignUpDto.phone,
                     address = memberSignUpDto.address,
                     nickname = memberSignUpDto.nickname,
-                    role = Role.CUSTOMER,
-                    cart = Cart()
+                    role = Role.CUSTOMER
                 )
             )
+            cartRepository.save(Cart(member = member))
         } else if (memberSignUpDto.role == "SELLER") {
             memberRepository.save(
                 Member(

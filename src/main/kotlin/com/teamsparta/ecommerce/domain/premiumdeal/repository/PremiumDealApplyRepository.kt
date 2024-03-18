@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable
 import java.time.LocalDateTime
 
 
+
 @Repository
 interface PremiumDealApplyRepository:JpaRepository<PremiumDealApply,Long> {
     @Query("SELECT pda FROM PremiumDealApply pda WHERE pda.applicationDate > :startTime AND pda.applicationDate <= :endTime")
@@ -19,7 +20,7 @@ interface PremiumDealApplyRepository:JpaRepository<PremiumDealApply,Long> {
         pageable: Pageable
     ): Page<PremiumDealApply>
 
-
+    fun findByProduct_ItemId(itemId: Long): PremiumDealApply?
 
 
 

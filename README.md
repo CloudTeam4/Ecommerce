@@ -19,8 +19,7 @@
 ### ✅ 프로젝트 목표
 
 - Spring, RabbitMQ, Redis, Spring Batch, CI / CD + Docker 숙련도 높이기
-- 테스트 코드 작성에 익숙해지기
-- Kubernetes 맛보기
+- 테스트 코드를 기반으로 개발하는 것에 익숙해지기
 
 ### ✅ 인프라 구축
 

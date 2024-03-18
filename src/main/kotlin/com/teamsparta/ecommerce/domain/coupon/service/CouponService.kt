@@ -8,6 +8,7 @@ import com.teamsparta.ecommerce.domain.member.repository.MemberRepository
 import com.teamsparta.ecommerce.exception.BadRequestException
 import com.teamsparta.ecommerce.exception.ErrorCode
 import com.teamsparta.ecommerce.exception.NotFoundException
+import com.teamsparta.ecommerce.util.enum.CouponStatus
 import com.teamsparta.ecommerce.util.enum.Role
 import com.teamsparta.ecommerce.util.rabbit.RabbitService
 import com.teamsparta.ecommerce.util.web.request.CouponCreateRequest
@@ -52,7 +53,8 @@ class CouponService(
             type = request.type,
             applicable = request.applicable,
             quantity = request.quantity,
-            member = member
+            member = member,
+            couponstatus = CouponStatus.ACTIVE
         )
         return couponRepository.save(coupon)
 
@@ -67,9 +69,9 @@ class CouponService(
         val member = memberRepository.findById(memberId).orElseThrow { NotFoundException("회원 정보를 찾을 수 없습니다.") }
         val coupon = couponRepository.findById(couponId).orElseThrow { NotFoundException("쿠폰 정보를 찾을 수 없습니다.") }
 
-        val status = redisTemplate.opsForSet().isMember(key, memberId) ?: throw BadRequestException("확인을 못하는중")
 
-        if(!status){
+        if(couponBoxRepository.findByMemberAndCoupon(member, coupon).isPresent){
+
             throw BadRequestException("이미 쿠폰을 발급 받으셨습니다.")
         }
 
