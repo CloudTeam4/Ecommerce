@@ -15,8 +15,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 @RestController
 @RequestMapping("/api/orders")
 class OrderController(
-     private val orderService: OrderService,
-     private val orderDetailService: OrderDetailService) {
+    private val orderService: OrderService,
+    private val orderDetailService: OrderDetailService
+) {
 
     @PostMapping("/create")
     fun createOrder(@RequestBody orderRequestDto: OrderRequestDto):
@@ -71,7 +72,7 @@ class OrderController(
     fun findOrdersExcludingCancelAndRefund(
         @AuthenticationPrincipal member: UserDetailsImpl
     ): List<CallOrderListDto> {
-        return orderService.findOrdercancelandrefundList(member.getMemberId())
+        return orderService.findOrderCancelAndRefundList(member.getMemberId())
     }
 
     @GetMapping("/{orderId}/details")
