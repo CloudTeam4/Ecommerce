@@ -7,6 +7,6 @@ data class OrderRequestDto(
     var paymentmethod : PaymentMethod,
     var totalprice :Int,
     var items: List<OrderItemRequestDto>,
-    val couponId: Long? = null
+    val couponId: Long? = null,
 )
 

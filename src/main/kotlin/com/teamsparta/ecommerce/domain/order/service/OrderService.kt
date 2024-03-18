@@ -4,8 +4,10 @@ import com.teamsparta.ecommerce.domain.coupon.repository.CouponRepository
 import com.teamsparta.ecommerce.domain.event.model.Event
 import com.teamsparta.ecommerce.domain.event.repository.EventApplyRepository
 import com.teamsparta.ecommerce.domain.event.repository.EventRepository
+import com.teamsparta.ecommerce.domain.member.model.Member
 import com.teamsparta.ecommerce.domain.member.repository.MemberRepository
 import com.teamsparta.ecommerce.domain.order.dto.CallOrderListDto
+import com.teamsparta.ecommerce.domain.order.dto.OrderItemRequestDto
 import com.teamsparta.ecommerce.domain.order.dto.OrderRequestDto
 import com.teamsparta.ecommerce.domain.order.dto.OrderResponseDto
 import com.teamsparta.ecommerce.domain.order.model.Order
@@ -14,8 +16,6 @@ import com.teamsparta.ecommerce.domain.order.repository.OrderRepository
 import com.teamsparta.ecommerce.domain.product.repository.ProductRepository
 import com.teamsparta.ecommerce.util.enum.CouponStatus
 import com.teamsparta.ecommerce.util.enum.Status
-import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
@@ -32,45 +32,56 @@ class OrderService(
 ) {
 
     @Transactional
-    fun createOrder(orderRequestDto: OrderRequestDto): OrderResponseDto {
-        val authentication = SecurityContextHolder.getContext().authentication
-        val email = if (authentication != null && authentication.principal is UserDetails) {
-            (authentication.principal as UserDetails).username
-        } else {
-            throw RuntimeException("인증된 사용자 정보를 찾을 수 없습니다.")
-        }
-        val member = memberRepository.findByEmail(email).orElseThrow { RuntimeException("회원을 찾을 수 없습니다.") }
-        val order = Order(member = member, orderdate = LocalDateTime.now(), paymentmethod = orderRequestDto.paymentmethod)
-        var totalOrderPrice = 0
+    fun createOrder(orderRequestDto: OrderRequestDto, memberEmail: String): OrderResponseDto {
+        val member = memberRepository.findByEmail(memberEmail).orElseThrow { RuntimeException("회원을 찾을 수 없습니다.") }
+        val order = initializeOrder(member, orderRequestDto)
 
-        orderRequestDto.items.forEach { itemDto ->
-            val product = productRepository.findById(itemDto.productId).orElseThrow { RuntimeException("상품을 찾을 수 없습니다.") }
-            val event = findBestEventByProductId(product.itemId!!)
-            val orderDetail = OrderDetail(order = order, product = product, quantity = itemDto.quantity)
-            totalOrderPrice += calculatePrice(product.price, itemDto.quantity, event?.discountedPrice)
-
-            order.orderDetails.add(orderDetail)
-        }
-
-        orderRequestDto.couponId?.let { couponId ->
-        val coupon = couponRepository.findById(couponId)
-            .orElseThrow { RuntimeException("유효하지 않은 쿠폰입니다.") }
-
-            // 쿠폰 유효성 검사 로직 (사용 기간, 최소 주문 금액, 등)
-            if (coupon.isValid()) {
-                totalOrderPrice -= coupon.deductedPrice
-                coupon.couponstatus = CouponStatus.USED
-                couponRepository.save(coupon)
-            } else {
-                throw RuntimeException("쿠폰 사용 조건을 충족하지 않습니다.")
-            }
-        }
+        val totalOrderPrice = calculateTotalOrderPrice(order, orderRequestDto)
+        applyCouponIfAvailable(orderRequestDto.couponId, totalOrderPrice)
 
         order.totalprice = totalOrderPrice
         orderRepository.save(order)
 
         return OrderResponseDto(orderdate = order.orderdate, paymentmethod = order.paymentmethod, totalprice = order.totalprice)
+    }
+
+    fun initializeOrder(member: Member, orderRequestDto: OrderRequestDto): Order {
+        return Order(member = member, orderdate = LocalDateTime.now(), paymentmethod = orderRequestDto.paymentmethod)
+    }
+
+    fun calculateTotalOrderPrice(order: Order, orderRequestDto: OrderRequestDto): Int {
+        var totalOrderPrice = 0
+        orderRequestDto.items.forEach { itemDto ->
+            totalOrderPrice += processOrderItem(itemDto, order)
         }
+        return totalOrderPrice
+    }
+
+
+    fun processOrderItem(itemDto: OrderItemRequestDto, order: Order): Int {
+        val product = productRepository.findById(itemDto.productId).orElseThrow { RuntimeException("상품을 찾을 수 없습니다.") }
+        val event = findBestEventByProductId(product.itemId!!)
+        val orderDetail = OrderDetail(order = order, product = product, quantity = itemDto.quantity)
+        order.orderDetails.add(orderDetail)
+        return calculatePrice(product.price, itemDto.quantity, event?.discountedPrice)
+    }
+
+    fun applyCouponIfAvailable(couponId: Long?, totalOrderPrice: Int): Int {
+        return couponId?.let {
+            val coupon = couponRepository.findById(it).orElseThrow { RuntimeException("유효하지 않은 쿠폰입니다.") }
+            if (coupon.isValid()) {
+                coupon.couponstatus = CouponStatus.USED
+                couponRepository.save(coupon)
+                totalOrderPrice - coupon.deductedPrice // 새로운 totalOrderPrice 값을 반환
+            } else {
+                throw RuntimeException("쿠폰 사용 조건을 충족하지 않습니다.")
+            }
+        } ?: totalOrderPrice // 쿠폰 ID가 null인 경우, 원래의 totalOrderPrice 반환
+    }
+
+
+
+
 
 
 
@@ -89,26 +100,20 @@ class OrderService(
 
     }
     @Transactional
-    fun deleteOrder(orderId: Long) {
-        val authentication = SecurityContextHolder.getContext().authentication
-        val memberEmail = authentication.name
+    fun deleteOrder(orderId: Long,memberEmail: String) {
         val order = orderRepository.findById(orderId).orElseThrow()
         if ((order.member.email == memberEmail)&&((order.status == Status.ORDERCANCEL) || (order.status == Status.DELIVERYCOMPLETED)))
             orderRepository.deleteById(orderId)
     }
 
     @Transactional
-    fun cancelOrder(orderId: Long) {
-        val authentication = SecurityContextHolder.getContext().authentication
-        val memberEmail = authentication.name
+    fun cancelOrder(orderId: Long,memberEmail: String) {
         val order = orderRepository.findById(orderId).orElseThrow()
         if ((order.member.email == memberEmail)&&(order.status == Status.PAYMENTCOMPLETED||order.status == Status.PRIPAIRINGPRODUCT))
             order.status = Status.ORDERCANCEL
     }
     @Transactional
-    fun refundOrder(orderId: Long) {
-        val authentication = SecurityContextHolder.getContext().authentication
-        val memberEmail = authentication.name
+    fun refundOrder(orderId: Long,memberEmail: String) {
         val order = orderRepository.findById(orderId).orElseThrow()
         val now = LocalDateTime.now()
         val duration = Duration.between(order.orderdate, now)

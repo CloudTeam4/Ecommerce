@@ -43,8 +43,4 @@ class Order (
 
 
     ){
-    fun addOrderDetail(orderDetail: OrderDetail) {
-        orderDetails.add(orderDetail)
-        orderDetail.order = this
-    }
 }
