@@ -4,6 +4,7 @@ import com.teamsparta.ecommerce.domain.coupon.service.CouponService
 import com.teamsparta.ecommerce.domain.member.dto.MemberSignUpDto
 import com.teamsparta.ecommerce.domain.member.repository.MemberRepository
 import com.teamsparta.ecommerce.exception.NotFoundException
+import com.teamsparta.ecommerce.domain.member.repository.MemberRepository
 import com.teamsparta.ecommerce.integrationtest.IntegrationTest
 import com.teamsparta.ecommerce.util.enum.Role
 import com.teamsparta.ecommerce.util.rabbit.RabbitService
@@ -16,6 +17,7 @@ import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.transaction.annotation.Transactional
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
+
 
 
 class CouponTest : IntegrationTest() {
