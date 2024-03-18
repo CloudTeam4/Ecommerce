@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement
 
 
 @Configuration
-@EnableTransactionManagement
 class RedisConfig {
     @Value("\${spring.data.redis.host}")
     private val host: String? = null
@@ -51,8 +50,6 @@ class RedisConfig {
 
         // 모든 경우
         redisTemplate.setDefaultSerializer(StringRedisSerializer())
-
-        redisTemplate.setEnableTransactionSupport(true)
 
         return redisTemplate
     }
