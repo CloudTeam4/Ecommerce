@@ -26,33 +26,33 @@ import java.time.LocalDateTime
 @Configuration
 @EnableBatchProcessing
 class PremiumDealBatchConfiguration(
-    private val eventApplyRepository: EventApplyRepository,
+    private val eventRepository: EventRepository,
     private val eventApplyService: EventApplyService,
-    private val eventRepository: EventRepository
+    private val eventApplyRepository: EventApplyRepository
 ) {
 
 
     @Bean
-    fun EventJob(jobRepository: JobRepository,deleteStep:Step,EventStep: Step): Job {
-        return JobBuilder("EventJob", jobRepository)
+    fun eventJob(jobRepository: JobRepository,deleteStep:Step,eventStep: Step): Job {
+        return JobBuilder("premiumDealJob", jobRepository)
             .start(deleteStep)//특가삭제
-            .next(EventStep)//apply-> 특가
+            .next(eventStep)//apply-> 특가
             .build()
     }
 
     @Bean
-    fun EventStep(jobRepository: JobRepository, transactionManger: PlatformTransactionManager): Step {
-        return StepBuilder("EventStep",jobRepository)
+    fun eventStep(jobRepository: JobRepository, transactionManger: PlatformTransactionManager): Step {
+        return StepBuilder("premiumDealStep",jobRepository)
             .chunk<EventApply, Event>(10,transactionManger)
-            .reader(EventApplyItemReader())
-            .processor(EventProcessor())
-            .writer(EventItemWriter())
+            .reader(premiumDealApplyItemReader())
+            .processor(premiumDealProcessor())
+            .writer(premiumDealItemWriter())
             .build()
     }
 
     @Bean
     fun deleteStep(jobRepository: JobRepository, transactionManger: PlatformTransactionManager,deleteTasklet: Tasklet): Step {
-        return StepBuilder("EventStep",jobRepository)
+        return StepBuilder("premiumDealStep",jobRepository)
             .tasklet(deleteTasklet,transactionManger)
             .build()
     }
@@ -60,13 +60,13 @@ class PremiumDealBatchConfiguration(
 
 
     @Bean
-    fun EventApplyItemReader(): ItemReader<EventApply> {
+    fun premiumDealApplyItemReader(): ItemReader<EventApply> {
         val now = LocalDateTime.now()
         val startTime = now.minusDays(1).withHour(7).withMinute(1)
-        val endTime = now.withHour(13).withMinute(59)
+        val endTime = now.withHour(6).withMinute(59)
 
         return RepositoryItemReaderBuilder<EventApply>()
-            .name("EventApplyItemReader")
+            .name("premiumDealApplyItemReader")
             .repository(eventApplyRepository)
             .methodName("findByApplicationDateBetween")
             .arguments(listOf(startTime, endTime))
@@ -76,14 +76,14 @@ class PremiumDealBatchConfiguration(
 
 
     @Bean
-    fun EventProcessor(): ItemProcessor<EventApply, Event> {
+    fun premiumDealProcessor(): ItemProcessor<EventApply,Event> {
         return ItemProcessor { apply ->
             eventApplyService.createEvent(apply)
         }
     }
 
     @Bean
-    fun EventItemWriter(): ItemWriter<Event> {
+    fun premiumDealItemWriter(): ItemWriter<Event> {
         return ItemWriter { deals ->
             deals.forEach { deal ->
                 eventApplyService.save(deal)
