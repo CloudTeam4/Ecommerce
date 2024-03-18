@@ -25,7 +25,6 @@ class CouponTest : IntegrationTest() {
 
 
     @Test
-//    @Transactional
     fun issueCouponTest() {
         val couponCreateRequestDto = CouponCreateRequest(
             name = "testCoupon",
