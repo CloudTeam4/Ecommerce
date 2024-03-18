@@ -11,7 +11,7 @@ import org.springframework.scheduling.annotation.Scheduled
 @EnableScheduling
 class PremiumDealScheduledTask(
     private val jobLauncher: JobLauncher,
-    private val EventJob: Job
+    private val eventJob: Job
 ) {
 
 //    @Scheduled(cron = "0 0 7 * * *") // 매일 07시에 실행
@@ -21,7 +21,7 @@ class PremiumDealScheduledTask(
             val jobParameters = JobParametersBuilder()
                 .addLong("time", System.currentTimeMillis())
                 .toJobParameters()
-            jobLauncher.run(EventJob, jobParameters).also {
+            jobLauncher.run(eventJob, jobParameters).also {
                 println("Event job started with parameters: $jobParameters")
             }
         } catch (e: Exception) {
