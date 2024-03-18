@@ -1,6 +1,9 @@
 package com.teamsparta.ecommerce.domain.order.service
 
 import com.teamsparta.ecommerce.domain.coupon.repository.CouponRepository
+import com.teamsparta.ecommerce.domain.event.model.Event
+import com.teamsparta.ecommerce.domain.event.repository.EventApplyRepository
+import com.teamsparta.ecommerce.domain.event.repository.EventRepository
 import com.teamsparta.ecommerce.domain.member.repository.MemberRepository
 import com.teamsparta.ecommerce.domain.order.dto.CallOrderListDto
 import com.teamsparta.ecommerce.domain.order.dto.OrderRequestDto
@@ -8,9 +11,6 @@ import com.teamsparta.ecommerce.domain.order.dto.OrderResponseDto
 import com.teamsparta.ecommerce.domain.order.model.Order
 import com.teamsparta.ecommerce.domain.order.model.OrderDetail
 import com.teamsparta.ecommerce.domain.order.repository.OrderRepository
-import com.teamsparta.ecommerce.domain.premiumdeal.model.PremiumDeal
-import com.teamsparta.ecommerce.domain.premiumdeal.repository.PremiumDealApplyRepository
-import com.teamsparta.ecommerce.domain.premiumdeal.repository.PremiumDealRepository
 import com.teamsparta.ecommerce.domain.product.repository.ProductRepository
 import com.teamsparta.ecommerce.util.enum.CouponStatus
 import com.teamsparta.ecommerce.util.enum.Status
@@ -27,9 +27,10 @@ class OrderService(
     private val memberRepository: MemberRepository,
     private val productRepository: ProductRepository,
     private val couponRepository: CouponRepository,
-    private val premiumDealApplyRepository: PremiumDealApplyRepository,
-    private val premiumDealRepository: PremiumDealRepository
+    private val eventRepository: EventRepository,
+    private val eventApplyRepository: EventApplyRepository
 ) {
+
     @Transactional
     fun createOrder(orderRequestDto: OrderRequestDto): OrderResponseDto {
         val authentication = SecurityContextHolder.getContext().authentication
@@ -44,9 +45,9 @@ class OrderService(
 
         orderRequestDto.items.forEach { itemDto ->
             val product = productRepository.findById(itemDto.productId).orElseThrow { RuntimeException("상품을 찾을 수 없습니다.") }
-            val premiumDeal = findPremiumDealByProductId(product.itemId!!)
+            val event = findBestEventByProductId(product.itemId!!)
             val orderDetail = OrderDetail(order = order, product = product, quantity = itemDto.quantity)
-            totalOrderPrice += calculatePrice(product.price, itemDto.quantity, premiumDeal?.discountedPrice)
+            totalOrderPrice += calculatePrice(product.price, itemDto.quantity, event?.discountedPrice)
 
             order.orderDetails.add(orderDetail)
         }
@@ -65,9 +66,6 @@ class OrderService(
             }
         }
 
-
-
-
         order.totalprice = totalOrderPrice
         orderRepository.save(order)
 
@@ -82,12 +80,13 @@ class OrderService(
         val effectivePrice = discountedPrice ?: productPrice
         return effectivePrice * quantity
     }
-    @Transactional
-    fun findPremiumDealByProductId(productId: Long): PremiumDeal? {
-        val premiumDealApply = premiumDealApplyRepository.findByProduct_ItemId(productId)
-        return premiumDealApply?.let {
-            premiumDealRepository.findByPremiumDealApplyId(it.id!!)
+    fun findBestEventByProductId(productId: Long): Event? {
+        val eventApplies = eventApplyRepository.findByProductItemId(productId)?: emptyList()
+        val bestEventApply = eventApplies.maxByOrNull { it.discountRate } // 할인율이 가장 높은 이벤트 적용
+        return bestEventApply?.let {
+            eventRepository.findById(it.id!!).orElse(null)
         }
+
     }
     @Transactional
     fun deleteOrder(orderId: Long) {
@@ -166,7 +165,7 @@ class OrderService(
     }
 
     @Transactional
-    fun findOrdercancelandrefundList(memberId: Long): List<CallOrderListDto> {
+    fun findOrderCancelAndRefundList(memberId: Long): List<CallOrderListDto> {
         val statuses = listOf(Status.ORDERCANCEL, Status.ORDERREFUND)
         val orders = orderRepository.findByMemberIdAndStatusIn(memberId, statuses)
         return orders.map { order ->

@@ -26,7 +26,6 @@ class MemberService(
 
 ) {
 
-    @Transactional
     fun memberRegistration(memberSignUpDto: MemberSignUpDto) {
         val email = memberSignUpDto.email
         val encodedPassword = passwordEncoder.encode(memberSignUpDto.password)
@@ -67,17 +66,18 @@ class MemberService(
 
     private fun checkRoleAndSaveMember(memberSignUpDto: MemberSignUpDto, encodedPassword: String) {
         if (memberSignUpDto.role == "CUSTOMER") {
-            memberRepository.save(
+            val member = memberRepository.save(
                 Member(
                     email = memberSignUpDto.email,
                     password = encodedPassword,
                     phone = memberSignUpDto.phone,
                     address = memberSignUpDto.address,
                     nickname = memberSignUpDto.nickname,
-                    role = Role.CUSTOMER,
-                    cart = Cart()
+                    role = Role.CUSTOMER
                 )
             )
+            member.cart = Cart()
+            memberRepository.save(member)
         } else if (memberSignUpDto.role == "SELLER") {
             memberRepository.save(
                 Member(

@@ -1,10 +1,10 @@
 package com.teamsparta.ecommerce.util.batch
 
-import com.teamsparta.ecommerce.domain.premiumdeal.model.PremiumDeal
-import com.teamsparta.ecommerce.domain.premiumdeal.model.PremiumDealApply
-import com.teamsparta.ecommerce.domain.premiumdeal.repository.PremiumDealApplyRepository
-import com.teamsparta.ecommerce.domain.premiumdeal.repository.PremiumDealRepository
-import com.teamsparta.ecommerce.domain.premiumdeal.service.PremiumDealApplyService
+import com.teamsparta.ecommerce.domain.event.model.Event
+import com.teamsparta.ecommerce.domain.event.model.EventApply
+import com.teamsparta.ecommerce.domain.event.repository.EventApplyRepository
+import com.teamsparta.ecommerce.domain.event.repository.EventRepository
+import com.teamsparta.ecommerce.domain.event.service.EventApplyService
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
@@ -26,33 +26,33 @@ import java.time.LocalDateTime
 @Configuration
 @EnableBatchProcessing
 class PremiumDealBatchConfiguration(
-    private val premiumDealApplyRepository: PremiumDealApplyRepository,
-    private val premiumDealApplyService: PremiumDealApplyService,
-    private val premiumDealRepository: PremiumDealRepository
+    private val eventApplyRepository: EventApplyRepository,
+    private val eventApplyService: EventApplyService,
+    private val eventRepository: EventRepository
 ) {
 
 
     @Bean
-    fun premiumDealJob(jobRepository: JobRepository,deleteStep:Step,premiumDealStep: Step): Job {
-        return JobBuilder("premiumDealJob", jobRepository)
+    fun EventJob(jobRepository: JobRepository,deleteStep:Step,EventStep: Step): Job {
+        return JobBuilder("EventJob", jobRepository)
             .start(deleteStep)//특가삭제
-            .next(premiumDealStep)//apply-> 특가
+            .next(EventStep)//apply-> 특가
             .build()
     }
 
     @Bean
-    fun premiumDealStep(jobRepository: JobRepository, transactionManger: PlatformTransactionManager): Step {
-        return StepBuilder("premiumDealStep",jobRepository)
-            .chunk<PremiumDealApply, PremiumDeal>(10,transactionManger)
-            .reader(premiumDealApplyItemReader())
-            .processor(premiumDealProcessor())
-            .writer(premiumDealItemWriter())
+    fun EventStep(jobRepository: JobRepository, transactionManger: PlatformTransactionManager): Step {
+        return StepBuilder("EventStep",jobRepository)
+            .chunk<EventApply, Event>(10,transactionManger)
+            .reader(EventApplyItemReader())
+            .processor(EventProcessor())
+            .writer(EventItemWriter())
             .build()
     }
 
     @Bean
     fun deleteStep(jobRepository: JobRepository, transactionManger: PlatformTransactionManager,deleteTasklet: Tasklet): Step {
-        return StepBuilder("premiumDealStep",jobRepository)
+        return StepBuilder("EventStep",jobRepository)
             .tasklet(deleteTasklet,transactionManger)
             .build()
     }
@@ -60,14 +60,14 @@ class PremiumDealBatchConfiguration(
 
 
     @Bean
-    fun premiumDealApplyItemReader(): ItemReader<PremiumDealApply> {
+    fun EventApplyItemReader(): ItemReader<EventApply> {
         val now = LocalDateTime.now()
         val startTime = now.minusDays(1).withHour(7).withMinute(1)
-        val endTime = now.withHour(6).withMinute(59)
+        val endTime = now.withHour(13).withMinute(59)
 
-        return RepositoryItemReaderBuilder<PremiumDealApply>()
-            .name("premiumDealApplyItemReader")
-            .repository(premiumDealApplyRepository)
+        return RepositoryItemReaderBuilder<EventApply>()
+            .name("EventApplyItemReader")
+            .repository(eventApplyRepository)
             .methodName("findByApplicationDateBetween")
             .arguments(listOf(startTime, endTime))
             .sorts(mapOf("id" to Direction.ASC))
@@ -76,31 +76,24 @@ class PremiumDealBatchConfiguration(
 
 
     @Bean
-    fun premiumDealProcessor(): ItemProcessor<PremiumDealApply, PremiumDeal> {
+    fun EventProcessor(): ItemProcessor<EventApply, Event> {
         return ItemProcessor { apply ->
-            premiumDealApplyService.createPremiumDeal(apply)
+            eventApplyService.createEvent(apply)
         }
     }
 
     @Bean
-    fun premiumDealItemWriter(): ItemWriter<PremiumDeal> {
+    fun EventItemWriter(): ItemWriter<Event> {
         return ItemWriter { deals ->
             deals.forEach { deal ->
-                premiumDealApplyService.save(deal)
+                eventApplyService.save(deal)
             }
-        }
-    }
-    @Bean
-    fun applyDeleteTasklet(): Tasklet {
-        return Tasklet { _, _ ->
-            premiumDealApplyRepository.deleteAll()
-            RepeatStatus.FINISHED
         }
     }
     @Bean
     fun deleteTasklet(): Tasklet {
         return Tasklet { _, _ ->
-            premiumDealRepository.deleteAll()
+            eventRepository.deleteAll()
             RepeatStatus.FINISHED
         }
     }

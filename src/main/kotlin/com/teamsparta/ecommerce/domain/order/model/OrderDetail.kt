@@ -1,7 +1,7 @@
 package com.teamsparta.ecommerce.domain.order.model
 
 import com.teamsparta.ecommerce.domain.product.model.Product
-import com.teamsparta.ecommerce.domain.premiumdeal.model.PremiumDeal
+import com.teamsparta.ecommerce.domain.event.model.Event
 import jakarta.persistence.*
 
 @Entity
@@ -23,8 +23,8 @@ class OrderDetail (
     var product: Product? = null,
 
     @ManyToOne
-    @JoinColumn(name = "PREMIUM_DEAL_ID", nullable = true)
-    var premiumDeal: PremiumDeal? = null
+    @JoinColumn(name = "EVENT_ID", nullable = true)
+    var event: Event? = null
 ){
     fun calculatePrice(): Int {
         // 기본 상품 가격 계산
@@ -32,7 +32,7 @@ class OrderDetail (
         val totalPrice = productPrice * quantity
 
         // 특가 상품이면 할인 가격 적용
-        return premiumDeal?.let {
+        return event?.let {
             val discountPrice = it.discountedPrice
             discountPrice * quantity
         } ?: totalPrice
