@@ -1,5 +1,6 @@
 INSERT INTO member (email, password, phone, address, nickname, role)
-values ('admin@test.com', 'password', '123456', 'address', 'Admin', 'ADMIN')
+VALUES ('admin@example.com', 'securepassword', '1234567890', '123 Admin Street', 'AdminUser', 'ADMIN');
+
 -- INSERT INTO member (email, password, phone, address, nickname, role)
 -- SELECT
 --     CONCAT('user', number, '@example.com') AS email,
