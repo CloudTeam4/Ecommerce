@@ -89,6 +89,7 @@ class CouponService(
     }
 
 
+
     @Transactional
     fun assignCouponToUsers(role: Role, couponId: Long): List<CouponBox> {
         val members = memberRepository.findByRole(role)
