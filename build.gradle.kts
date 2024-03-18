@@ -47,7 +47,7 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
     annotationProcessor("org.projectlombok:lombok")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-test:3.2.3")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.springframework.batch:spring-batch-test")
 
@@ -62,10 +62,9 @@ dependencies {
 
     runtimeOnly("com.mysql:mysql-connector-j:8.3.0")
 
-    testImplementation("org.springframework.boot:spring-boot-testcontainers")
-    testImplementation("org.testcontainers:mysql:1.19.3")  // MySQL 컨테이너 사용
-    testImplementation("org.testcontainers:junit-jupiter:1.16.3")  // TC 의존성
-    testImplementation("com.mysql:mysql-connector-j:8.2.0")
+    testImplementation("org.testcontainers:testcontainers:1.19.7") // TC 의존성
+    testImplementation("org.testcontainers:mysql:1.19.7")  // MySQL 컨테이너 사용
+    testImplementation("org.testcontainers:junit-jupiter:1.17.6")
 
 }
 
