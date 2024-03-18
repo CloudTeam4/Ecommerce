@@ -26,8 +26,7 @@ data class Member(
     @Enumerated(EnumType.STRING)
     var role : Role,
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
-    @JoinColumn(name = "cart_id")
+    @OneToOne(mappedBy = "member",fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
     var cart: Cart? = null
 
 ){
