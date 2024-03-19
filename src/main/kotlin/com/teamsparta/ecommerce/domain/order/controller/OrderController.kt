@@ -15,25 +15,36 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 @RestController
 @RequestMapping("/api/orders")
 class OrderController(
-     private val orderService: OrderService,
-     private val orderDetailService: OrderDetailService) {
+    private val orderService: OrderService,
+    private val orderDetailService: OrderDetailService
+) {
 
     @PostMapping("/create")
-    fun createOrder(@RequestBody orderRequestDto: OrderRequestDto):
+    fun createOrder(
+        @RequestBody orderRequestDto: OrderRequestDto,
+        @AuthenticationPrincipal member : UserDetailsImpl
+    ):
             ResponseEntity<OrderResponseDto> {
-        val orderResponseDto = orderService.createOrder(orderRequestDto)
+        val orderResponseDto = orderService.createOrder(orderRequestDto, member.getMember().email)
         return ResponseEntity.ok(orderResponseDto)
     }
 
     @DeleteMapping("/{orderId}")
-    fun deleteOrder(@PathVariable orderId: Long): ResponseEntity<Void> {
-        orderService.deleteOrder(orderId)
+
+    fun deleteOrder(
+        @PathVariable orderId: Long,
+        @AuthenticationPrincipal member : UserDetailsImpl
+    ): ResponseEntity<Void> {
+        orderService.deleteOrder(orderId,member.getMember().email)
         return ResponseEntity.ok().build()
     }
 
     @PatchMapping("/{orderId}/cancel")
-    fun cancelOrder(@PathVariable orderId: Long): ResponseEntity<Void> {
-        orderService.cancelOrder(orderId)
+    fun cancelOrder(
+        @PathVariable orderId: Long,
+        @AuthenticationPrincipal member : UserDetailsImpl
+    ): ResponseEntity<Void> {
+        orderService.cancelOrder(orderId,member.getMember().email)
         return ResponseEntity.ok().build()
     }
 
@@ -71,7 +82,7 @@ class OrderController(
     fun findOrdersExcludingCancelAndRefund(
         @AuthenticationPrincipal member: UserDetailsImpl
     ): List<CallOrderListDto> {
-        return orderService.findOrdercancelandrefundList(member.getMemberId())
+        return orderService.findOrderCancelAndRefundList(member.getMemberId())
     }
 
     @GetMapping("/{orderId}/details")
@@ -80,8 +91,11 @@ class OrderController(
         return ResponseEntity.ok(orderDetails)
     }
     @PostMapping("/{orderId}/refund")
-    fun refundOrder(@PathVariable orderId: Long): ResponseEntity<String> {
-            orderService.refundOrder(orderId)
+    fun refundOrder(
+        @PathVariable orderId: Long,
+        @AuthenticationPrincipal member : UserDetailsImpl
+    ): ResponseEntity<String> {
+            orderService.refundOrder(orderId,member.getMember().email)
         return ResponseEntity.ok("환불요청이 완료됨")
 
     }

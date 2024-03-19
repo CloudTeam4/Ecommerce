@@ -11,21 +11,21 @@ import org.springframework.scheduling.annotation.Scheduled
 @EnableScheduling
 class PremiumDealScheduledTask(
     private val jobLauncher: JobLauncher,
-    private val premiumDealJob: Job
+    private val eventJob: Job
 ) {
 
 //    @Scheduled(cron = "0 0 7 * * *") // 매일 07시에 실행
-    @Scheduled(cron = "20 49 15 14 * *")
-    fun runPremiumDealJob() {
+    @Scheduled(cron = "00 39 13 18 * *")
+    fun runEventJob() {
         try {
             val jobParameters = JobParametersBuilder()
                 .addLong("time", System.currentTimeMillis())
                 .toJobParameters()
-            jobLauncher.run(premiumDealJob, jobParameters).also {
-                println("PremiumDeal job started with parameters: $jobParameters")
+            jobLauncher.run(eventJob, jobParameters).also {
+                println("Event job started with parameters: $jobParameters")
             }
         } catch (e: Exception) {
-            println("Error occurred during execution of PremiumDeal job")
+            println("Error occurred during execution of Event job")
             e.printStackTrace()
         }
     }

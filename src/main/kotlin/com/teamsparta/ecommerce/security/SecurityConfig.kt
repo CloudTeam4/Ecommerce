@@ -26,7 +26,6 @@ class SecurityConfig(private val jwtUtil: JwtUtil) {
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
                     "/h2-console/**",
-                    "/api/premium-deals/**",
                     "/api/items/**",
                     "/api/orders/create"
                 ).permitAll()
@@ -37,9 +36,9 @@ class SecurityConfig(private val jwtUtil: JwtUtil) {
                     ).hasAuthority("ADMIN")
                     .requestMatchers("/{orderId}/prepare").hasAuthority("SELLER")
                     .requestMatchers("/orders/**").hasAuthority("CUSTOMER")
-                    .requestMatchers("/api/coupons").hasAuthority("ADMIN")
-                    .requestMatchers("/api/coupons/**").hasAuthority("CUSTOMER")
-                    .requestMatchers("api/coupons/**").hasAuthority("PREMIUM")
+                    .requestMatchers("/api/coupons/**").hasAnyAuthority("CUSTOMER","PREMIUM","ADMIN")
+                    .requestMatchers("/api/event/apply/**").hasAnyAuthority("SELLER","ADMIN")
+                    .requestMatchers("/api/event/premium_deal").hasAnyAuthority("PREMIUM","ADMIN")
                     .anyRequest().authenticated()
 
             }
