@@ -23,8 +23,15 @@
 
 ### ✅ 인프라 구축
 
-- Docker :
-- Github Actions :
+- AWS EC2 → 4대
+    - 1) Spring Application → Docker로 띄우기
+    - 2) Spring ( Consumer ) → Docker로 띄우기
+    - 3) RabbitMQ → 서버에서 직접 실행
+    - 4) Redis → 서버에서 직접 실행
+    
+    ➡️ 하나의 서버에 하나의 컨테이너만 띄우는데 굳이 Docker를 사용할 이유가 없다고 생각했습니다. 그래서 RabbitMQ와 Redis는 서버에서 직접 실행을 하기로 했고 Spring도 JAR 파일을 바로 실행하면 되는 것이지만 프로젝트의 목표 중 하나가 Docker에 대한 숙련도를 높이는 것이기에 Spring은 Docker를 사용하여 띄우기로 하였습니다.
+    
+- Github Actions : github action 의 상위 개념인 Workflow의 yml 파일과 DockerFile을 통한 CI / CD 파이프라인 구축.
 </aside>
 
 </br></br>
