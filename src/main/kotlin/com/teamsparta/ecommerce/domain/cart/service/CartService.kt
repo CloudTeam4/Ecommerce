@@ -81,7 +81,7 @@ class CartService(
         val member = memberRepository.findById(memberId).orElseThrow {
             throw NotFoundException("The Member was not found for provided id")
         }
-        return member.cart ?: throw NotFoundException("There is no cart associated with this member")
+        return member.cart?:throw NotFoundException("The Cart was not found for provided Member")
 
     }
 

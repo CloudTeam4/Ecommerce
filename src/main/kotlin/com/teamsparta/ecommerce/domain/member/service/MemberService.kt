@@ -58,7 +58,12 @@ class MemberService(
         if (!passwordEncoder.matches(password, requestMember.password)) {
             throw ForbiddenException("Email or password is wrong. Try again")
         }
+        val cart = requestMember.cart ?: throw (NotFoundException("sdfsdfsf"))
 
+        if(cart.member.id != requestMember.id){
+            cart.member.id = requestMember.id
+            cartRepository.save(cart)
+        }
         val generalToken = jwtUtil.generateGeneralToken(requestMember.id!!, email, requestMember.role)
 
         response.addHeader("Authorization", "Bearer $generalToken")
@@ -79,7 +84,10 @@ class MemberService(
                     role = Role.CUSTOMER
                 )
             )
-            cartRepository.save(Cart(member = member))
+            val cart = cartRepository.saveAndFlush(Cart(member = member))
+            member.cart = cart
+            memberRepository.save(member)
+
         } else if (memberSignUpDto.role == "SELLER") {
             memberRepository.save(
                 Member(

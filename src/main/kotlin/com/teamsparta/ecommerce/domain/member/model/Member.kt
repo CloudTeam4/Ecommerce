@@ -8,6 +8,10 @@ import jakarta.persistence.*
 @Entity
 data class Member(
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long? = null,
+
     @Column(nullable = false)
     var email: String,
 
@@ -30,8 +34,5 @@ data class Member(
     var cart: Cart? = null
 
 ){
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null
 
 }
