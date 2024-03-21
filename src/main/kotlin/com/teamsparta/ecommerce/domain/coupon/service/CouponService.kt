@@ -69,9 +69,9 @@ class CouponService(
         val member = memberRepository.findById(memberId).orElseThrow { NotFoundException("회원 정보를 찾을 수 없습니다.") }
         val coupon = couponRepository.findById(couponId).orElseThrow { NotFoundException("쿠폰 정보를 찾을 수 없습니다.") }
 
+        val status = redisTemplate.opsForSet().isMember(key, memberId) ?: throw BadRequestException("확인을 못하는중")
 
-        if(couponBoxRepository.findByMemberAndCoupon(member, coupon).isPresent){
-
+        if(!status){
             throw BadRequestException("이미 쿠폰을 발급 받으셨습니다.")
         }
 
