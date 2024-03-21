@@ -48,7 +48,6 @@ class CouponController(
         @PathVariable couponId: Long,
     ) : ResponseEntity<SingleResponse<String>> {
         try {
-            val coupon = couponService.downloadCoupon(user.getMemberId(), couponId)
             return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(SingleResponse.success("축하합니다! 쿠폰이 발급 되었습니다."))
@@ -56,6 +55,7 @@ class CouponController(
             throw BadRequestException("죄송합니다, 쿠폰이 모두 소진되었습니다.", ErrorCode.BAD_REQUEST)
         }
     }
+}
 
 
 
