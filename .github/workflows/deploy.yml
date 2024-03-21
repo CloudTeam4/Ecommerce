@@ -42,14 +42,10 @@ jobs:
         run: chmod +x gradlew
 
       - name: Set Yaml
-        uses: microsoft/variable-substitution@v1
-        with:
-          files: ./src/main/resources/application.yml
-        env:
-          spring.datasource.url: ${{ secrets.DB_URL }}
-          spring.datasource.password: ${{ secrets.DB_PWD }}
-          spring.rabbitmq.host: ${{ secrets.RABBITMQ_HOST }}
-          jwt.secret-key: ${{ secrets.JWT_KEY }}
+        run: |
+          mkdir -p src/main/resources
+          echo "${{ secrets.APPLICATION }}" | base64 --decode > src/main/resources/application.yml
+          find src
 
       # Gradle build
       - name: Build with Gradle
@@ -67,7 +63,7 @@ jobs:
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_HOST }} # EC2 인스턴스 퍼블릭 DNS
-          username: ec2-user
+          username: qusgmlwns95
           key: ${{ secrets.AWS_KEY }} # pem 키
           # 도커 작업
           script: |
