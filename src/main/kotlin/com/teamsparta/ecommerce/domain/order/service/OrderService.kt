@@ -42,11 +42,18 @@ class OrderService(
         order.totalprice = totalOrderPrice
         orderRepository.save(order)
 
-        return OrderResponseDto(orderdate = order.orderdate, paymentmethod = order.paymentmethod, totalprice = order.totalprice)
+        return OrderResponseDto(
+            orderdate = order.orderdate,
+            paymentmethod = order.paymentmethod,
+            totalprice = order.totalprice)
     }
 
     fun initializeOrder(member: Member, orderRequestDto: OrderRequestDto): Order {
-        return Order(member = member, orderdate = LocalDateTime.now(), paymentmethod = orderRequestDto.paymentmethod)
+        return Order(
+            member = member,
+            orderdate = LocalDateTime.now(),
+            paymentmethod =
+            orderRequestDto.paymentmethod)
     }
 
     fun calculateTotalOrderPrice(order: Order, orderRequestDto: OrderRequestDto): Int {
@@ -57,7 +64,6 @@ class OrderService(
         return totalOrderPrice
     }
 
-
     fun processOrderItem(itemDto: OrderItemRequestDto, order: Order): Int {
         val product = productRepository.findById(itemDto.productId).orElseThrow { RuntimeException("상품을 찾을 수 없습니다.") }
         val event = findBestEventByProductId(product.itemId!!)
@@ -65,7 +71,6 @@ class OrderService(
         order.orderDetails.add(orderDetail)
         return calculatePrice(product.price, itemDto.quantity, event?.discountedPrice)
     }
-
     fun applyCouponIfAvailable(couponId: Long?, totalOrderPrice: Int): Int {
         return couponId?.let {
             val coupon = couponRepository.findById(it).orElseThrow { RuntimeException("유효하지 않은 쿠폰입니다.") }
@@ -78,14 +83,6 @@ class OrderService(
             }
         } ?: totalOrderPrice // 쿠폰 ID가 null인 경우, 원래의 totalOrderPrice 반환
     }
-
-
-
-
-
-
-
-
 
     fun calculatePrice(productPrice: Int, quantity: Int, discountedPrice: Int?): Int {
         val effectivePrice = discountedPrice ?: productPrice
@@ -109,7 +106,7 @@ class OrderService(
     @Transactional
     fun cancelOrder(orderId: Long,memberEmail: String) {
         val order = orderRepository.findById(orderId).orElseThrow()
-        if ((order.member.email == memberEmail)&&(order.status == Status.PAYMENTCOMPLETED||order.status == Status.PRIPAIRINGPRODUCT))
+        if ((order.member.email == memberEmail)&&(order.status == Status.PAYMENTCOMPLETED||order.status == Status.PREPAIRINGPRODUCT))
             order.status = Status.ORDERCANCEL
     }
     @Transactional
@@ -131,12 +128,12 @@ class OrderService(
     fun orderPreparingProduct(orderId: Long) {
         val order = orderRepository.findById(orderId).orElseThrow()
         if (order.status == Status.PAYMENTCOMPLETED)
-            order.status = Status.PRIPAIRINGPRODUCT
+            order.status = Status.PREPAIRINGPRODUCT
     }
     @Transactional
     fun orderDeliveryStart(orderId: Long) {
         val order = orderRepository.findById(orderId).orElseThrow()
-        if (order.status == Status.PRIPAIRINGPRODUCT)
+        if (order.status == Status.PREPAIRINGPRODUCT)
             order.status = Status.DELIVERYSTARTED
     }
 
@@ -182,5 +179,4 @@ class OrderService(
             )
         }
     }
-
 }

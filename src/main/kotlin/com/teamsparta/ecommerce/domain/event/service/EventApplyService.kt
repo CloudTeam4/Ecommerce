@@ -36,7 +36,7 @@ class EventApplyService(
 
         return eventApplyRepository.save(eventApply)
     }
-    @Transactional
+
     fun createEvent(apply: EventApply): Event {
         val discountedPrice = calculateDiscountedPrice(apply.product.price, apply.discountRate)
         val event = Event(
